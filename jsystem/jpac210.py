@@ -1,5 +1,6 @@
 import struct
 import pyaurum
+from jsystem.typedchunk import *
 from copy import deepcopy
 
 __all__ = [
@@ -65,141 +66,574 @@ class JPAChunk:
 class JPADynamicsBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("Flags")
+        self.unknown = U32ChunkBytes("Unknown")
+        self.emitter_scale_x = F32Chunk("EmitterScaleX")
+        self.emitter_scale_y = F32Chunk("EmitterScaleY")
+        self.emitter_scale_z = F32Chunk("EmitterScaleZ")
+        self.emitter_translation_x = F32Chunk("EmitterTranslationX")
+        self.emitter_translation_y = F32Chunk("EmitterTranslationY")
+        self.emitter_translation_z = F32Chunk("EmitterTranslationZ")
+        self.emitter_direction_x = F32Chunk("EmitterDirectionX")
+        self.emitter_direction_y = F32Chunk("EmitterDirectionY")
+        self.emitter_direction_z = F32Chunk("EmitterDirectionZ")
+        self.initial_velocity_omni = F32Chunk("InitialVelocityOmni")
+        self.initial_velocity_axis = F32Chunk("InitialVelocityAxis")
+        self.initial_velocity_random = F32Chunk("InitialVelocityRandom")
+        self.initial_velocity_direction = F32Chunk("InitialVelocityDirection")
+        self.spread = F32Chunk("Spread")
+        self.initial_velocity_ratio = F32Chunk("InitialVelocityRatio")
+        self.rate = F32Chunk("Rate")
+        self.rate_random = F32Chunk("RateRandom")
+        self.lifetime_random = F32Chunk("LifetimeRandom")
+        self.volume_sweep = F32Chunk("VolumeSweep")
+        self.volume_minimum_radius = F32Chunk("VolumeMinimumRadius")
+        self.air_resistance = F32Chunk("AirResistance")
+        self.moment_random = F32Chunk("MomentRandom")
+        self.emitter_rotation_x_deg = U16Chunk("EmitterRotationXDeg")
+        self.emitter_rotation_y_deg = U16Chunk("EmitterRotationYDeg")
+        self.emitter_rotation_z_deg = U16Chunk("EmitterRotationZDeg")
+        self.max_frame = U16Chunk("MaxFrame")
+        self.start_frame = U16Chunk("StartFrame")
+        self.lifetime = U16Chunk("Lifetime")
+        self.volume_size = U16Chunk("VolumeSize")
+        self.division_number = U16Chunk("DivisionNumber")
+        self.rate_step = U8Chunk("RateStep")
+        self.auto_chunks = [
+            self.flags, self.unknown,
+            self.emitter_scale_x, self.emitter_scale_y, self.emitter_scale_z,
+            self.emitter_translation_x, self.emitter_translation_y, self.emitter_translation_z,
+            self.emitter_direction_x, self.emitter_direction_y, self.emitter_direction_z,
+            self.initial_velocity_omni, self.initial_velocity_axis, self.initial_velocity_random,
+            self.initial_velocity_direction, self.spread, self.initial_velocity_ratio,
+            self.rate, self.rate_random, self.lifetime_random, self.volume_sweep, 
+            self.volume_minimum_radius, self.air_resistance, self.moment_random,
+            self.emitter_rotation_x_deg, self.emitter_rotation_y_deg, self.emitter_rotation_z_deg,
+            self.max_frame, self.start_frame, self.lifetime, self.volume_size, 
+            self.division_number, self.rate_step, Offset(0x3)
+        ]
+
+
 
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
+
+        
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "BEM1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+            
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPAFieldBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("FieldFlags")
+        self.position_x = F32Chunk("PositionX")
+        self.position_y = F32Chunk("PositionY")
+        self.position_z = F32Chunk("PositionZ")
+        self.direction_x = F32Chunk("DirectionX")
+        self.direction_y = F32Chunk("DirectionY")
+        self.direction_z = F32Chunk("DirectionZ")
+        self.param_1 = F32Chunk("Param1")
+        self.param_2 = F32Chunk("Param2")
+        self.param_3 = F32Chunk("Param3")
+        self.fade_in = F32Chunk("FadeIn")
+        self.fade_out = F32Chunk("FadeOut")
+        self.enter_time = F32Chunk("EnterTime")
+        self.distance_time = F32Chunk("DistanceTime")
+        self.cycle = U8Chunk("Cycle")
+        self.auto_chunks = [
+            self.flags, 
+            self.position_x, self.position_y, self.position_z,
+            self.direction_x, self.direction_y, self.direction_z,
+            self.param_1, self.param_2, self.param_3,
+            self.fade_in, self.fade_out,
+            self.enter_time, self.distance_time,
+            self.cycle, Offset(0x3)
+        ]
+
+        
 
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "FLD1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+            
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPAKeyBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
-
+        self.key_type = U8Chunk("KeyType")
+        self.key_count = U8Chunk("KeyCount")
+        self.loop = BoolChunk("Loop")
+        self.auto_chunks = [self.key_type, self.key_count, Offset(0x1), self.loop]
+        self.keyframes = []
+    
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
+        
+        self.keyframes = pyaurum.get_j3dkeyframe_table(buffer, offset, self.key_count.val)
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
+
+        self.keyframes = entry["Keyframes"]
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        self.key_count.val = len(self.keyframes)
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        binary_data += pyaurum.pack_j3dkeyframe_table(self.keyframes)
+
+        # compare contents, ignore padding
+        self.binary_data = bytearray(self.binary_data)
+        self.binary_data[0x2:0x3] = pyaurum.pack_u8(0)
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "KFA1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+        
+        obj["Keyframes"] = self.keyframes
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPABaseShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("BaseShapeFlags") # 0x8
+        # local primary_color_data_offset 0xC - 0xE
+        # local environment_color_data_offset 0xE-0x10
+        self.base_size_x = F32Chunk("BaseSizeX") # 0x10
+        self.base_size_y = F32Chunk("BaseSizeY") # 0x14
+        self.blend_mode_flags = U16Chunk("BlendModeFlags") # 0x18
+        self.alpha_compare_flags = U8Chunk("AlphaCompareFlags") # 0x1A
+        self.alpha_reference_0 = U8Chunk("AlphaReference0") # 0x1B
+        self.alpha_reference_1 = U8Chunk("AlphaReference1") # 0x1C
+        self.z_mode_flags = U8Chunk("ZModeFlags") # 0x1D
+        self.texture_flags = U8Chunk("TextureFlags") # 0x1E
+        # local texture_index_anim_count 0x1F-0x20
+        self.texture_index = U8Chunk("TextureIndex") # 0x20
+        self.color_flags = U8Chunk("ColorFlags") # 0x21
+        #self.primary_color_animation_data_count = U8Chunk("PrimaryColorAnimationDataCount", 0, 0x22) # 
+        #self.environment_color_animation_data_count = U8Chunk("EnvironmentColorAnimationDataCount", 0, 0x23) #
+        self.color_animation_max_frame = U16Chunk("ColorAnimationMaxFrame") # 0x24
+        self.primary_color = U32ChunkBytes("PrimaryColor") # 0x26
+        self.environment_color = U32ChunkBytes("EnvironmentColor") # 0x2A
+        self.animation_random = U8Chunk("AnimationRandom") # 0x2E
+        self.color_loop_offset_mask = U8Chunk("ColorLoopOffsetMask") # 0x2F
+        self.texture_index_loop_offset_mask = U8Chunk("TextureIndexLoopOffsetMask") # 0x30
+
+        self.tex_init_trans_x = FlagConditionalChunk(F32Chunk("TexInitTransX", 0.0), self.flags, 24)
+        self.tex_init_trans_y = FlagConditionalChunk(F32Chunk("TexInitTransY", 0.0), self.flags, 24)
+        self.tex_init_scale_x = FlagConditionalChunk(F32Chunk("TexInitScaleX", 1.0), self.flags, 24)
+        self.tex_init_scale_y = FlagConditionalChunk(F32Chunk("TexInitScaleY", 1.0), self.flags, 24)
+        self.tex_init_rot = FlagConditionalChunk(F32Chunk("TexInitRotation", 0.0), self.flags, 24)
+        self.tex_inc_trans_x = FlagConditionalChunk(F32Chunk("TexIncTransX", 0.0), self.flags, 24)
+        self.tex_inc_trans_y = FlagConditionalChunk(F32Chunk("TexIncTransY", 0.0), self.flags, 24)
+        self.tex_inc_scale_x = FlagConditionalChunk(F32Chunk("TexIncScaleX", 1.0), self.flags, 24)
+        self.tex_inc_scale_y = FlagConditionalChunk(F32Chunk("TexIncScaleY", 1.0), self.flags, 24)
+        self.tex_inc_rot = FlagConditionalChunk(F32Chunk("TexIncRotation", 0.0), self.flags, 24)
+
+        # put vars in here to auto unpack, unpack_json, pack_json. currently does NOT include pack
+        # order DOES matter
+        self.auto_handle_vars = [self.flags, Offset(0x4), self.base_size_x, self.base_size_y, self.blend_mode_flags, self.alpha_compare_flags, 
+                                 self.alpha_reference_0, self.alpha_reference_1, 
+                                 self.z_mode_flags, self.texture_flags, Offset(0x1), self.texture_index, 
+                                 self.color_flags, Offset(0x2), self.color_animation_max_frame, self.primary_color, self.environment_color,
+                                 self.animation_random, self.color_loop_offset_mask, self.texture_index_loop_offset_mask, Offset(0x3), self.tex_init_trans_x,
+                                 self.tex_init_trans_y, self.tex_init_scale_x, self.tex_init_scale_y, self.tex_init_rot,
+                                 self.tex_inc_trans_x, self.tex_inc_trans_y, self.tex_inc_scale_x, self.tex_inc_scale_y, self.tex_inc_rot]
+
 
     def unpack(self, buffer, offset: int = 0):
+        rel_offset = 8 # this is the offset of the first var we auto unpack
+        for var in self.auto_handle_vars:
+            var.unpack(buffer, offset + rel_offset)
+            rel_offset += var.get_size()
+        initial_offset = offset
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
+        self.extra_data = buffer[offset + 0x34:offset + size + 8]
+        self.binary_data = buffer[offset + 0x8:offset + 0x8 + size]
+
+        primary_color_data_offset = pyaurum.get_u16(buffer, offset + 0xC)
+        environment_color_data_offset = pyaurum.get_u16(buffer, offset + 0xE)
+        texture_index_anim_count = pyaurum.get_u8(buffer, offset + 0x1F)
+        primary_color_animation_data_count = pyaurum.get_u8(buffer, offset + 0x22)
+        environment_color_animation_data_count = pyaurum.get_u8(buffer, offset + 0x23)
+        
+        extra_data_offset = offset + 0x34
+
+
+        if (bool((self.flags.get_val() >> 24) & 0x01)):
+            extra_data_offset += 0x28
+
+        self.is_enable_tex_anim = bool((self.texture_flags.get_val() >> 0) & 0x01)  
+        self.texture_index_anim_data = []
+        if self.is_enable_tex_anim:
+            self.texture_index_anim_data = pyaurum.get_u8_array(buffer, extra_data_offset, texture_index_anim_count)
+
+        self.isColorPrmAnm = bool((self.color_flags.get_val() >> 1) & 0x01)
+        self.primary_color_data = []
+        if (self.isColorPrmAnm):
+            self.primary_color_data = pyaurum.get_color_table(buffer, initial_offset + primary_color_data_offset, primary_color_animation_data_count)
+        self.isColorEnvAnm = bool((self.color_flags.get_val() >> 3) & 0x01)
+        self.environment_color_data = []
+        if (self.isColorEnvAnm):
+            self.environment_color_data = pyaurum.get_color_table(buffer, initial_offset + environment_color_data_offset, environment_color_animation_data_count)
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        for var in self.auto_handle_vars:
+            var.unpack_json(entry)
+        self.binary_data = bytes.fromhex(entry["HexRef-DONOTEDIT"])
+        self.texture_index_anim_data = entry["TextureIndexAnimData"]
+        self.primary_color_data = entry["PrimaryColorKeyframes"]
+        self.environment_color_data = entry["EnvironmentColorKeyframes"]
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        binary_data += self.flags.pack()
+        binary_data += pyaurum.pack_u16(0)
+        binary_data += pyaurum.pack_u16(0)
+        binary_data += self.base_size_x.pack()
+        binary_data += self.base_size_y.pack()
+        binary_data += self.blend_mode_flags.pack()
+        binary_data += self.alpha_compare_flags.pack()
+        binary_data += self.alpha_reference_0.pack()
+        binary_data += self.alpha_reference_1.pack()
+        binary_data += self.z_mode_flags.pack()
+        binary_data += self.texture_flags.pack()
+        binary_data += pyaurum.pack_u8(len(self.texture_index_anim_data))
+        binary_data += self.texture_index.pack()
+        binary_data += self.color_flags.pack()
+        binary_data += pyaurum.pack_u8(len(self.primary_color_data))
+        binary_data += pyaurum.pack_u8(len(self.environment_color_data))
+        binary_data += self.color_animation_max_frame.pack()
+        binary_data += self.primary_color.pack()
+        binary_data += self.environment_color.pack()
+        binary_data += self.animation_random.pack()
+        binary_data += self.color_loop_offset_mask.pack()
+        binary_data += self.texture_index_loop_offset_mask.pack()
+        binary_data += '\0\0\0'.encode("ascii")
+        extra_data = bytes()
+        if ((self.flags.get_val() >> 24) & 0x01):
+            extra_data += self.tex_init_trans_x.pack()
+            extra_data += self.tex_init_trans_y.pack()
+            extra_data += self.tex_init_scale_x.pack()
+            extra_data += self.tex_init_scale_y.pack()
+            extra_data += self.tex_init_rot.pack()
+            extra_data += self.tex_inc_trans_x.pack()
+            extra_data += self.tex_inc_trans_y.pack()
+            extra_data += self.tex_inc_scale_x.pack()
+            extra_data += self.tex_inc_scale_y.pack()
+            extra_data += self.tex_inc_rot.pack()
+        if ((self.texture_flags.get_val() >> 0) & 0x01):
+            extra_data += pyaurum.pack_u8_array(self.texture_index_anim_data)
+            extra_data += pyaurum.align4(extra_data)
+        if (self.color_flags.get_val() >> 1) & 0x01:
+            offs = len(extra_data) + 0x34
+            extra_data += pyaurum.pack_color_table(self.primary_color_data)
+            extra_data += pyaurum.align4(extra_data)
+            binary_data[0x4:0x6] = pyaurum.pack_u16(offs)
+        if (self.color_flags.get_val() >> 3) & 0x01:
+            offs = len(extra_data) + 0x34
+            extra_data += pyaurum.pack_color_table(self.environment_color_data)
+            extra_data += pyaurum.align4(extra_data)
+            binary_data[0x6:0x8] = pyaurum.pack_u16(offs)
+
+
+        
+        binary_data += extra_data
+        if (self.binary_data != binary_data):
+            print("--DETECTED CHANGE--")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+            print("-------------------")
+
+        out_data = binary_data + pyaurum.align4(binary_data)
         return "BSP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_handle_vars:
+            var.pack_json(obj)
+        obj["HexRef-DONOTEDIT"] = self.binary_data.hex()
+        obj["ExtraDataRef-DONOTEDIT"] = self.extra_data.hex()
+        obj["TextureIndexAnimData"] = self.texture_index_anim_data
+        obj["PrimaryColorKeyframes"] = self.primary_color_data
+        obj["EnvironmentColorKeyframes"] = self.environment_color_data
+
+        return obj
 
 
 class JPAExtraShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("ExtraShapeFlags")
+        self.scale_in_timing = F32Chunk("ScaleInTiming")
+        self.scale_out_timing = F32Chunk("ScaleOutTiming")
+        self.scale_in_value_x = F32Chunk("ScaleInValueX")
+        self.scale_out_value_x = F32Chunk("ScaleOutValueX")
+        self.scale_in_value_y = F32Chunk("ScaleInValueY")
+        self.scale_out_value_y = F32Chunk("ScaleOutValueY")
+        self.scale_out_random = F32Chunk("ScaleOutRandom")
+        self.scale_animation_x_max_frame = U16Chunk("ScaleAnimationXMaxFrame")
+        self.scale_animation_y_max_frame = U16Chunk("ScaleAnimationYMaxFrame")
+        self.alpha_in_timing = F32Chunk("AlphaInTiming")
+        self.alpha_out_timing = F32Chunk("AlphaOutTiming")
+        self.alpha_in_value = F32Chunk("AlphaInValue")
+        self.alpha_base_value = F32Chunk("AlphaBaseValue")
+        self.alpha_out_value = F32Chunk("AlphaOutValue")
+        self.alpha_wave_frequency = F32Chunk("AlphaWaveFrequency")
+        self.alpha_wave_random = F32Chunk("AlphaWaveRandom")
+        self.alpha_wave_amplitude = F32Chunk("AlphaWaveAmplitude")
+        self.rotate_angle = F32Chunk("RotateAngle")
+        self.rotate_angle_random = F32Chunk("RotateAngleRandom")
+        self.rotate_speed = F32Chunk("RotateSpeed")
+        self.rotate_speed_random = F32Chunk("RotateSpeedRandom")
+        self.rotate_direction = F32Chunk("RotateDirection")
+        self.auto_chunks = [
+            self.flags, self.scale_in_timing, self.scale_out_timing, self.scale_in_value_x, self.scale_out_value_x,
+            self.scale_in_value_y, self.scale_out_value_y, self.scale_out_random,
+            self.scale_animation_x_max_frame, self.scale_animation_y_max_frame,
+            self.alpha_in_timing, self.alpha_out_timing, self.alpha_in_value, self.alpha_base_value,
+            self.alpha_out_value, self.alpha_wave_frequency, self.alpha_wave_random, self.alpha_wave_amplitude,
+            self.rotate_angle, self.rotate_angle_random, self.rotate_speed, self.rotate_speed_random,
+            self.rotate_direction
+        ]
+
 
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "ESP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+            
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPAChildShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("ChildShapeFlags")
+        self.position_random = F32Chunk("PositionRandom")
+        self.base_velocity = F32Chunk("BaseVelocity")
+        self.base_velocity_random = F32Chunk("BaseVelocityRandom")
+        self.velocity_inf_rate = F32Chunk("VelocityInfRate") #TODO: WTF IS AN INF RATE
+        self.gravity = F32Chunk("Gravity")
+        self.global_scale_2d_x = F32Chunk("GlobalScale2DX")
+        self.global_scale_2d_y = F32Chunk("GlobalScale2DY")
+        self.inherit_scale = F32Chunk("InheritScale")
+        self.inherit_alpha = F32Chunk("InheritAlpha")
+        self.inherit_rgb = F32Chunk("InheritRGB")
+        self.primary_color = U32ChunkBytes("PrimaryColor")
+        self.environment_color = U32ChunkBytes("EnvironmentColor")
+        self.timing = F32Chunk("Timing")
+        # my.self.life = SMGModdingChunk("Life")
+        self.life = U16Chunk("Life")
+        self.rate = U16Chunk("Rate")
+        self.step = U8Chunk("Step")
+        self.texture_index = U8Chunk("TextureIndex")
+        self.rotate_speed = U16Chunk("RotateSpeed")
+
+        self.auto_chunks = [
+            self.flags, self.position_random, self.base_velocity, self.base_velocity_random,
+            self.velocity_inf_rate, self.gravity, self.global_scale_2d_x, self.global_scale_2d_y,
+            self.inherit_scale, self.inherit_alpha, self.inherit_rgb, self.primary_color,
+            self.environment_color, self.timing, self.life, self.rate, self.step, 
+            self.texture_index, self.rotate_speed
+        ]
+
 
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "SSP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+            
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPAExTexShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
+        self.flags = U32Chunk("ExTexFlags")
+        self.indirect_texture_matrix_0_0 = F32Chunk("IndirectTextureMatrix[0][0]")
+        self.indirect_texture_matrix_0_1 = F32Chunk("IndirectTextureMatrix[0][1]")
+        self.indirect_texture_matrix_0_2 = F32Chunk("IndirectTextureMatrix[0][2]")
+        self.indirect_texture_matrix_1_0 = F32Chunk("IndirectTextureMatrix[1][0]")
+        self.indirect_texture_matrix_1_1 = F32Chunk("IndirectTextureMatrix[1][1]")
+        self.indirect_texture_matrix_1_2 = F32Chunk("IndirectTextureMatrix[1][2]")
+        self.matrix_scale = S8Chunk("MatrixScale")
+        self.indirect_texture_index = U8Chunk("IndirectTextureIndex")
+        self.second_texture_index = U8Chunk("SecondTextureIndex")
+        self.auto_chunks = [
+            self.flags,
+            self.indirect_texture_matrix_0_0, self.indirect_texture_matrix_0_1, self.indirect_texture_matrix_0_2,
+            self.indirect_texture_matrix_1_0, self.indirect_texture_matrix_1_1, self.indirect_texture_matrix_1_2,
+            self.matrix_scale, self.indirect_texture_index, self.second_texture_index, Offset(0x1)
+        ]
+
 
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
+        
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry)
+        self.binary_data = bytes.fromhex(entry["BinaryData"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
 
     def pack(self) -> bytes:
-        out_data = self.binary_data + pyaurum.align4(self.binary_data)
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+
+        if (self.binary_data != binary_data or not binary_data):
+            print("Packing does not match contents of original file.")
+            print(self.binary_data.hex())
+            print(binary_data.hex())
+        out_data = binary_data + pyaurum.align4(self.binary_data)
         return "ETX1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
-        return self.binary_data.hex()
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+            
+        obj["BinaryData"] = self.binary_data.hex()
+        return obj
 
 
 class JPAResource:

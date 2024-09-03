@@ -1,7 +1,7 @@
 
 # pygapa
 ![Pygapa screenshot](screenshot.png)
-**pygapa** (***Py**thon **Ga**laxy **Pa**rticles*) is a Python tool for editing particles and effect data in *Super Mario Galaxy 1 & 2*. It features a GUI editor to open, edit and save *Effect.arc* files. Additionally, it contains a bunch of functions to extract, dump, import and pack particle data. Command-line operations (*Batch mode*) are supported as well.
+This is a fork of [pygapa](https://github.com/SunakazeKun/pygapa) that aims to add JPAC2-10 editing.
 
 # Requirements
 Before you can use this tool, make sure you have installed and prepared the following programs and software:
@@ -11,22 +11,21 @@ Before you can use this tool, make sure you have installed and prepared the foll
 - [wszst](https://szs.wiimm.de/wszst/) or [yaz0enc](http://www.amnoid.de/gc/yaz0enc.zip), tools to compress SZS
 
 # To-Do
-First of all, this tool is still in development, so a lot of features are not implemented yet and some functions are still unfinished. Here is a list of features that I consider adding in the future:
+Here's what this fork plans on accomplishing (or has accomplished) at the moment.
 | Function | Priority | Description |
 | - | - | - |
-| Particle editing | **High** | As of know, adding completely new particles or editing their aspects is not implemented yet. The creators of *noclip.website* already documented the entirety of the particles engine, which will be a great help when parsing the particle blocks. |
-| 3D renderer | **Medium** | Testing what the particles would look like ingame will make everything a hundred times easier. Writing the renderer for this is the exact opposite, however. I never developed my own program that uses 3D graphics, this will be an interesting initial experience with OpenGL or something similar. |
-| Localization| **Medium** | Most of the SMG modders speak English. The Japanese community, however, rely on translated or localized tools since, so I was told, English is difficult for some of their members. I assume that adding localization should not be difficult. |
-| SZP/SZS compression | **Low** | As of now, pygapa relies on external tools to encode data using SZS compression. SZP compression is not implemented at all, since it is not used in SMG1/2. However, the SMG games still support decoding SZP data. I never really worked with compression formats on my own so this could be an interesting first take on writing a compression algorithm. |
+| Visual particle editing | **High** | As of now, adding completely new particles or editing their aspects is not implemented yet. The creators of *noclip.website* already documented the entirety of the particles engine, which will be a great help when parsing the particle blocks. |
+| Batch mode particle editing | **High** | This is done, and there are no plans on adding new features here at the moment. |
+
 
 # Batch mode
-If you want to dump and convert particle data, you need to extract the files from *ParticleData/Effect.arc* first. You can use *szstools* to deal with RARC archives. The extracted files are *Particles.jpc*, *ParticleNames.bcsv* and *AutoEffectList.bcsv*. Copy that folder's path and open your command prompt, shell or any command-line console. In the shell, browse to the *pygapa* folder and type in the following command:
+If you want to dump and convert particle data, you need to extract the files from *ParticleData/Effect.arc* first. You can use *szstools* (or WiiExplorer) to deal with RARC archives. The extracted files are *Particles.jpc*, *ParticleNames.bcsv* and *AutoEffectList.bcsv*. Copy that folder's path and open your command prompt, shell or any command-line console. In the shell, browse to the *pygapa* folder and type in the following command:
 ``python pygapa.py dump <path to JPC and BCSV files> <path to dump files to>``
 Then, hit enter and *pygapa* will dump the data for you. This may take a couple of seconds. Any non-existent folders will be created by the tool if they don't exist already.
 
 Converting the JSON and BTI files back into SMG's format is very simple as well. Again, in the shell, just enter the following command:
 ``python pygapa.py pack <path to JSON and BTI files> <path to JPC and BCSV files>``
-You'll then obtain new BCSV and JPC files that can be packed into a proper Effect.arc archive using *szstools*.
+You'll then obtain new BCSV and JPC files that can be packed into a proper Effect.arc archive using *szstools* (or WiiExplorer).
 
 After dumping the files, you'll find the following files and folders:
 - **Particles.json**: Specifies the particle and texture names that belong to the JPC file.
@@ -116,15 +115,23 @@ The DrawOrder field declares the rendering order or priority.
 | FOR_2D_MODEL | 8 |
 
 ### Particle files
-JSON files for every particle can be found in the *Particles* folder. At the moment, not much is documented about particle data, so for most of the blocks a hex string containing the raw bytes is used. Here is an example from *AirBubbleGeneratorShoot00.json*. The raw hex bytes have been replaced with "..." here.
+JSON files for every particle can be found in the *Particles* folder. Documentation for each "chunk" can be found [here](https://www.lumasworkshop.com/wiki/JPA_(File_Format)). Any option not found in these (offset, length, padding) are automatically handled by pygapa.
 ```json
 {
-    "dynamicsBlock": "...",
+    "dynamicsBlock": {
+        ...
+    },
     "fieldBlocks": [
-        "..."
+        {
+            ...
+        }
     ],
-    "baseShape": "...",
-    "extraShape": "...",
+    "baseShape": {
+        ...
+    },
+    "extraShape": {
+        ...
+    },
     "textures": [
         "mr_sand00_ia",
         "mr_glow01_i"
@@ -135,11 +142,11 @@ Each particle entry has the same structure, but some fields are optional:
 
 | Field | Type | Description |
 | - | - | - |
-| dynamicsBlock | JPADynamicsBlock | Required and unknown. |
-| fieldBlocks | JPAFieldBlock[] | Optional and unknown. There may be more than one. |
-| keyBlocks | JPAKeyBlock[] | Optional and unknown. There may be more than one. |
-| baseShape | JPABaseShape | Required and unknown. |
-| extraShape | JPAExtraShape | Required and unknown. |
-| childShape | JPAChildShape | Optional and unknown. |
-| exTexShape | JPAExTexShape | Optional and unknown. |
+| dynamicsBlock | JPADynamicsBlock | Required. |
+| fieldBlocks | JPAFieldBlock[] | Optional. There may be more than one. |
+| keyBlocks | JPAKeyBlock[] | Optional. There may be more than one. |
+| baseShape | JPABaseShape | Required. |
+| extraShape | JPAExtraShape | Required. |
+| childShape | JPAChildShape | Optional. |
+| exTexShape | JPAExTexShape | Optional. |
 | textures | string[] | List of textures to be used. Required. |

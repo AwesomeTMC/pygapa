@@ -426,6 +426,12 @@ def get_bool(buffer, offset: int = 0) -> bool:
 def get_u8(buffer, offset: int) -> int:
     return buffer[offset]
 
+def get_u8_array(buffer: bytearray, offset: int, count: int) -> list:
+    new_list = []
+    array = bytearray_split_at_size(buffer, offset, 0x1, count)
+    for num in array:
+        new_list.append(int.from_bytes(num, byteorder='big', signed=False))
+    return new_list
 
 def get_s8(buffer, offset: int) -> int:
     return S8.unpack_from(buffer, offset)[0]
@@ -442,6 +448,26 @@ def get_s16(buffer, offset: int) -> int:
 def get_u32(buffer, offset: int) -> int:
     return U32.unpack_from(buffer, offset)[0]
 
+def get_u32_array(buffer: bytearray, offset: int, count: int) -> list:
+    array = list()
+    for i in range(count):
+        print(i)
+        current_offset = offset + (i * 0x4)
+        array.append(buffer[current_offset:current_offset + 0x4])
+    return array
+
+def bytearray_split_at_size(buffer: bytearray, offset: int, size: int, count: int) -> list[bytearray]:
+    new_list = []
+    for i in range(count):
+        current_offset = offset + (i * size)
+        new_list.append(buffer[current_offset:current_offset + size])
+    return new_list
+
+def bytearray_list_hex(byte_list: list[bytearray]) -> list[str]:
+    new_list = []
+    for arr in byte_list:
+        new_list.append(arr.hex())
+    return new_list
 
 def get_s32(buffer, offset: int) -> int:
     return S32.unpack_from(buffer, offset)[0]
@@ -470,7 +496,6 @@ def pack_bool(val: bool) -> bytes:
 def pack_u8(val: int) -> bytes:
     return U8.pack(val)
 
-
 def pack_s8(val: int) -> bytes:
     return S8.pack(val)
 
@@ -489,3 +514,54 @@ def pack_u32(val: int) -> bytes:
 
 def pack_s32(val: int) -> bytes:
     return S32.pack(val)
+
+def pack_f32(val: int) -> bytes:
+    return F32.pack(val)
+
+def pack_f64(val: int) -> bytes:
+    return F64.pack(val)
+
+def get_color_table(buffer: bytearray, offset: int, count: int) -> list[dict]:
+    new_list = []
+    for i in range(count):
+        obj = dict()
+        current_offset = offset + (i * 0x6)
+        obj["Frame"] = get_u16(buffer, current_offset)
+        obj["Color"] = buffer[current_offset + 0x2: current_offset + 0x6].hex()
+        new_list.append(obj)
+    return new_list
+
+def get_j3dkeyframe_table(buffer: bytearray, offset: int, count: int) -> list[dict]:
+    new_list = []
+    for i in range(count):
+        obj = dict()
+        obj["Time"] = get_f32(buffer, offset)
+        obj["Value"] = get_f32(buffer, offset + 0x4)
+        obj["TangentIn"] = get_f32(buffer, offset + 0x8)
+        obj["TangentOut"] = get_f32(buffer, offset + 0xC)
+        offset += 0x10
+        new_list.append(obj)
+    return new_list
+
+
+def pack_color_table(color_list: list[dict]) -> bytearray:
+    new_list = bytearray()
+    for obj in color_list:
+        new_list.extend(pack_u16(obj["Frame"]))
+        new_list.extend(bytes.fromhex(obj["Color"]))
+    return new_list
+
+def pack_u8_array(arr: list[int]) -> bytearray:
+    new_list = bytearray()
+    for num in arr:
+        new_list.extend(pack_u8(num))
+    return new_list
+
+def pack_j3dkeyframe_table(key_list: list[dict]) -> bytearray:
+    new_list = bytearray()
+    for keyframe in key_list:
+        new_list.extend(pack_f32(keyframe["Time"]))
+        new_list.extend(pack_f32(keyframe["Value"]))
+        new_list.extend(pack_f32(keyframe["TangentIn"]))
+        new_list.extend(pack_f32(keyframe["TangentOut"]))
+    return new_list
