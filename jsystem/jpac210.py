@@ -1,5 +1,6 @@
 import struct
 import pyaurum
+import enum
 from jsystem.typedchunk import *
 from copy import deepcopy
 
@@ -66,7 +67,12 @@ class JPAChunk:
 class JPADynamicsBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("Flags")
+        self.volume_type = VolumeTypes.CUBE
+        self.fixed_density = False
+        self.fixed_interval = False
+        self.inherit_scale = False
+        self.follow_emitter = False
+        self.follow_emitter_child = False
         self.unknown = U32ChunkBytes("Unknown")
         self.emitter_scale_x = F32Chunk("EmitterScaleX")
         self.emitter_scale_y = F32Chunk("EmitterScaleY")
@@ -100,7 +106,7 @@ class JPADynamicsBlock(JPAChunk):
         self.division_number = U16Chunk("DivisionNumber")
         self.rate_step = U8Chunk("RateStep")
         self.auto_chunks = [
-            self.flags, self.unknown,
+            self.unknown,
             self.emitter_scale_x, self.emitter_scale_y, self.emitter_scale_z,
             self.emitter_translation_x, self.emitter_translation_y, self.emitter_translation_z,
             self.emitter_direction_x, self.emitter_direction_y, self.emitter_direction_z,
@@ -119,20 +125,39 @@ class JPADynamicsBlock(JPAChunk):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
-        
+        flags = pyaurum.get_u32(buffer, offset)
+        offset += 0x4
         for var in self.auto_chunks:
             var.unpack(buffer, offset)
             offset += var.get_size()
-
+        self.volume_type = VolumeTypes((flags >> 0x8) & 0x07)
+        self.fixed_density = bool(flags & 0x01)
+        self.fixed_interval = bool(flags & 0x02)
+        self.inherit_scale = bool(flags & 0x04)
+        self.follow_emitter = bool(flags & 0x08)
+        self.follow_emitter_child = bool(flags & 0x10)
         
-
     def unpack_json(self, entry):
         self.binary_data = bytes.fromhex(entry["BinaryData"])
         for var in self.auto_chunks:
             var.unpack_json(entry)
+        self.volume_type = VolumeTypes(entry["VolumeType"])
+        self.fixed_density = entry["FixedDensity"]
+        self.fixed_interval = entry["FixedInterval"]
+        self.inherit_scale = entry["InheritScale"]
+        self.follow_emitter = entry["FollowEmitter"]
+        self.follow_emitter_child = entry["FollowEmitterChild"]
 
     def pack(self) -> bytes:
         binary_data = bytearray()
+        flags = 0
+        flags |= ((int(self.volume_type) & 0x07) << 0x8) 
+        flags |= (int(self.fixed_density))
+        flags |= (int(self.fixed_interval) << 1)
+        flags |= (int(self.inherit_scale) << 2) 
+        flags |= (int(self.follow_emitter) << 3)
+        flags |= (int(self.follow_emitter_child) << 4)
+        binary_data += pyaurum.pack_u32(flags)
         for var in self.auto_chunks:
             binary_data += var.pack()
 
@@ -145,6 +170,12 @@ class JPADynamicsBlock(JPAChunk):
 
     def pack_json(self):
         obj = dict()
+        obj["VolumeType"] = self.volume_type
+        obj["FixedDensity"] = self.fixed_density
+        obj["FixedInterval"] = self.fixed_interval
+        obj["InheritScale"] = self.inherit_scale
+        obj["FollowEmitter"] = self.follow_emitter
+        obj["FollowEmitterChild"] = self.follow_emitter_child
         for var in self.auto_chunks:
             var.pack_json(obj)
             
@@ -939,3 +970,12 @@ class JParticlesContainer:
 
         # Return packed data
         return out_buf
+
+class VolumeTypes(enum.IntEnum):
+    CUBE = 0
+    SPHERE = 1
+    CYLINDER = 2
+    TORUS = 3
+    POINT = 4
+    CIRCLE = 5
+    LINE = 6

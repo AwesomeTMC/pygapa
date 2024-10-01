@@ -11,8 +11,8 @@ from PyQt5 import uic, QtGui, QtCore, QtWidgets
 
 # General application info
 APP_NAME = "pygapa"
-APP_VERSION = "v0.7"
-APP_CREATOR = "Aurum"
+APP_VERSION = "v0.7.1U"
+APP_CREATOR = "Aurum, AwesomeTMC"
 APP_TITLE = f"{APP_NAME} {APP_VERSION} -- by {APP_CREATOR}"
 
 # Setup QT application
@@ -203,6 +203,47 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.actionToolExport.triggered.connect(self.export_textures)
         self.actionToolImport.triggered.connect(self.add_or_import_textures)
 
+        self.emitterTranslationX.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_translation_x.set_val(s))
+        self.emitterTranslationY.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_translation_y.set_val(s))
+        self.emitterTranslationZ.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_translation_z.set_val(s))
+        self.emitterRotationX.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_rotation_x_deg.set_val(s))
+        self.emitterRotationY.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_rotation_y_deg.set_val(s))
+        self.emitterRotationZ.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_rotation_z_deg.set_val(s))
+        self.emitterScaleX.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_scale_x.set_val(s))
+        self.emitterScaleY.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_scale_y.set_val(s))
+        self.emitterScaleZ.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_scale_z.set_val(s))
+        self.emitterDirectionX.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_direction_x.set_val(s))
+        self.emitterDirectionY.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_direction_y.set_val(s))
+        self.emitterDirectionZ.valueChanged.connect(lambda s: self.current_particle.dynamics_block.emitter_direction_z.set_val(s))
+        self.initialVelocityOmni.valueChanged.connect(lambda s: self.current_particle.dynamics_block.initial_velocity_omni.set_val(s))
+        self.initialVelocityRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.initial_velocity_random.set_val(s))
+        self.initialVelocityRatio.valueChanged.connect(lambda s: self.current_particle.dynamics_block.initial_velocity_ratio.set_val(s))
+        self.initialVelocityAxis.valueChanged.connect(lambda s: self.current_particle.dynamics_block.initial_velocity_axis.set_val(s))
+        self.initialVelocityDirection.valueChanged.connect(lambda s: self.current_particle.dynamics_block.initial_velocity_direction.set_val(s))
+        self.lifetime.valueChanged.connect(lambda s: self.current_particle.dynamics_block.lifetime.set_val(s))
+        self.startFrame.valueChanged.connect(lambda s: self.current_particle.dynamics_block.start_frame.set_val(s))
+        self.rate.valueChanged.connect(lambda s: self.current_particle.dynamics_block.rate.set_val(s))
+        self.rateStep.valueChanged.connect(lambda s: self.current_particle.dynamics_block.rate_step.set_val(s))
+        self.lifetimeRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.lifetime_random.set_val(s))
+        self.maxFrame.valueChanged.connect(lambda s: self.current_particle.dynamics_block.max_frame.set_val(s))
+        self.rateRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.rate_random.set_val(s))
+        
+        for volume_type in jsystem.jpac210.VolumeTypes:
+            self.volumeType.addItem(volume_type.name)
+        
+        self.volumeType.currentIndexChanged.connect(self.set_particle_volume_type)
+        self.volumeSweep.valueChanged.connect(lambda s: self.current_particle.dynamics_block.volume_sweep.set_val(s))
+        self.volumeMinRadius.valueChanged.connect(lambda s: self.current_particle.dynamics_block.volume_minimum_radius.set_val(s))
+        self.volumeSize.valueChanged.connect(lambda s: self.current_particle.dynamics_block.volume_size.set_val(s))
+        self.airResistance.valueChanged.connect(lambda s: self.current_particle.dynamics_block.air_resistance.set_val(s))
+        self.momentRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.moment_random.set_val(s))
+        self.spread.valueChanged.connect(lambda s: self.current_particle.dynamics_block.spread.set_val(s))
+        self.followEmitter.toggled.connect(self.set_particle_follow_emitter)
+        self.followEmitterChild.toggled.connect(self.set_particle_follow_emitter_child)
+        self.fixedDensity.toggled.connect(self.set_particle_fixed_density)
+        self.fixedInterval.toggled.connect(self.set_particle_fixed_interval)
+        self.inheritScale.toggled.connect(self.set_particle_inherit_scale)
+
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
         self.actionPreferences.triggered.connect(self.preferences.show)
@@ -211,6 +252,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.actionAbout.triggered.connect(self.show_about)
         self.tabContents.currentChanged.connect(self.update_toolbar)
         self.enable_all_components(False)
+        self.hide_all_particle_settings_tabs()
         self.show()
 
     @staticmethod
@@ -412,7 +454,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.actionToolReplace.setEnabled(True)
 
     def show_about(self):
-        self.show_information("Report any bugs and problems here:\nhttps://github.com/SunakazeKun/pygapa")
+        self.show_information("Original by Aurum. Unofficial fork by AwesomeTMC.\nReport any bugs and problems here:\nhttps://github.com/AwesomeTMC/pygapa")
 
     # ---------------------------------------------------------------------------------------------
     # Effect editing
@@ -708,6 +750,8 @@ class PgpEditor(QtWidgets.QMainWindow):
         # Populate blocks and their entries
         self.populate_particle_blocks()
 
+        self.hide_all_particle_settings_tabs()
+
         # Release blocked signals
         self.textParticleTextures.blockSignals(False)
 
@@ -754,7 +798,53 @@ class PgpEditor(QtWidgets.QMainWindow):
             return
 
         current_block_node = self.treeParticleBlocks.currentItem()
+        current_block_type = current_block_node.data(0, PBNODE_MODE)
         print(current_block_node.data(0, PBNODE_MODE))
+        self.hide_all_particle_settings_tabs()
+        if current_block_type == PgpEditorMode.DYNAMICS_BLOCK:
+            # 0-3: Emitter Tabs
+            for i in range(4):
+                self.particleSettingsTabs.setTabVisible(i, True)
+            self.emitterTranslationX.setValue(self.current_particle.dynamics_block.emitter_translation_x.get_val())
+            self.emitterTranslationY.setValue(self.current_particle.dynamics_block.emitter_translation_y.get_val())
+            self.emitterTranslationZ.setValue(self.current_particle.dynamics_block.emitter_translation_z.get_val())
+            self.emitterRotationX.setValue(self.current_particle.dynamics_block.emitter_rotation_x_deg.get_val())
+            self.emitterRotationY.setValue(self.current_particle.dynamics_block.emitter_rotation_y_deg.get_val())
+            self.emitterRotationZ.setValue(self.current_particle.dynamics_block.emitter_rotation_z_deg.get_val())
+            self.emitterScaleX.setValue(self.current_particle.dynamics_block.emitter_scale_x.get_val())
+            self.emitterScaleY.setValue(self.current_particle.dynamics_block.emitter_scale_y.get_val())
+            self.emitterScaleZ.setValue(self.current_particle.dynamics_block.emitter_scale_z.get_val())
+            self.emitterDirectionX.setValue(self.current_particle.dynamics_block.emitter_direction_x.get_val())
+            self.emitterDirectionY.setValue(self.current_particle.dynamics_block.emitter_direction_y.get_val())
+            self.emitterDirectionZ.setValue(self.current_particle.dynamics_block.emitter_direction_z.get_val())
+            self.initialVelocityOmni.setValue(self.current_particle.dynamics_block.initial_velocity_omni.get_val())
+            self.initialVelocityRandom.setValue(self.current_particle.dynamics_block.initial_velocity_random.get_val())
+            self.initialVelocityRatio.setValue(self.current_particle.dynamics_block.initial_velocity_ratio.get_val())
+            self.initialVelocityAxis.setValue(self.current_particle.dynamics_block.initial_velocity_axis.get_val())
+            self.initialVelocityDirection.setValue(self.current_particle.dynamics_block.initial_velocity_direction.get_val())
+            self.lifetime.setValue(self.current_particle.dynamics_block.lifetime.get_val())
+            self.startFrame.setValue(self.current_particle.dynamics_block.start_frame.get_val())
+            self.rate.setValue(self.current_particle.dynamics_block.rate.get_val())
+            self.rateStep.setValue(self.current_particle.dynamics_block.rate_step.get_val())
+            self.lifetimeRandom.setValue(self.current_particle.dynamics_block.lifetime_random.get_val())
+            self.maxFrame.setValue(self.current_particle.dynamics_block.max_frame.get_val())
+            self.rateRandom.setValue(self.current_particle.dynamics_block.rate_random.get_val())
+            self.volumeType.setCurrentIndex(self.current_particle.dynamics_block.volume_type)
+            self.volumeSweep.setValue(self.current_particle.dynamics_block.volume_sweep.get_val())
+            self.volumeMinRadius.setValue(self.current_particle.dynamics_block.volume_minimum_radius.get_val())
+            self.volumeSize.setValue(self.current_particle.dynamics_block.volume_size.get_val())
+            self.airResistance.setValue(self.current_particle.dynamics_block.air_resistance.get_val())
+            self.momentRandom.setValue(self.current_particle.dynamics_block.moment_random.get_val())
+            self.spread.setValue(self.current_particle.dynamics_block.spread.get_val())
+            self.followEmitter.setChecked(self.current_particle.dynamics_block.follow_emitter)
+            self.followEmitterChild.setChecked(self.current_particle.dynamics_block.follow_emitter_child)
+            self.fixedDensity.setChecked(self.current_particle.dynamics_block.fixed_density)
+            self.fixedInterval.setChecked(self.current_particle.dynamics_block.fixed_interval)
+            self.inheritScale.setChecked(self.current_particle.dynamics_block.inherit_scale)
+            
+    def hide_all_particle_settings_tabs(self):
+        for i in range(self.particleSettingsTabs.count()):
+            self.particleSettingsTabs.setTabVisible(i, False)
 
     def add_particle(self):
         if self.get_editor_mode() != PgpEditorMode.PARTICLE:
@@ -923,6 +1013,18 @@ class PgpEditor(QtWidgets.QMainWindow):
     def set_particle_name(self, text: str):
         self.current_particle.name = text
         self.update_current_particle_list_item()
+    def set_particle_volume_type(self, val):
+        self.current_particle.dynamics_block.volume_type = jsystem.jpac210.VolumeTypes(val)
+    def set_particle_follow_emitter(self, val: bool):
+        self.current_particle.dynamics_block.follow_emitter = val
+    def set_particle_follow_emitter_child(self, val: bool):
+        self.current_particle.dynamics_block.follow_emitter_child = val
+    def set_particle_fixed_density(self, val: bool):
+        self.current_particle.dynamics_block.fixed_density = val
+    def set_particle_fixed_interval(self, val: bool):
+        self.current_particle.dynamics_block.fixed_interval = val
+    def set_particle_inherit_scale(self, val: bool):
+        self.current_particle.dynamics_block.inherit_scale = val
 
     # ---------------------------------------------------------------------------------------------
     # Texture editing

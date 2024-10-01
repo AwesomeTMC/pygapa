@@ -25,6 +25,8 @@ class TypedChunk():
         return self.val
     def get_size(self):
         return self.size
+    def set_val(self, new_val):
+        self.val = new_val
     
 class U8Chunk(TypedChunk):
     def unpack(self, buffer, offset: int = 0):
@@ -141,6 +143,8 @@ class ConditionalChunk(TypedChunk):
         return self.chunk.get_size()
     def get_val(self):
         return self.chunk.get_val()
+    def set_val(self, new_val):
+        return self.chunk.set_val(new_val)
     
 class FlagConditionalChunk(ConditionalChunk):
     def __init__(self, chunk: TypedChunk, flag, flag_num):

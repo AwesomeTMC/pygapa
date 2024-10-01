@@ -9,3 +9,4 @@ szsenctest.py
 pygapa.ini
 yaz0enc.exe
 *.bat
+*_test.py
