@@ -291,8 +291,9 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.effect_arc.unpack(pyaurum.read_bin_file(self.particle_data_file))
 
             self.particle_data.unpack_rarc(self.effect_arc)
-        except Exception:  # Will be handled better in the future, smh
-            self.status("An error occured while loading particle data.", StatusColor.ERROR)
+        except Exception as e:  # Will be handled better in the future, smh
+            self.status("An error occured while loading particle data. See output for details.", StatusColor.ERROR)
+            print(e)
             return
 
         # Populate data
@@ -638,8 +639,9 @@ class PgpEditor(QtWidgets.QMainWindow):
 
         try:
             imported_effects = pyaurum.read_json_file(import_file)
-        except Exception:
-            self.show_critical(f"An error occured when importing from \"{import_file}\".")
+        except Exception as e:
+            self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
+            print(e)
             return
 
         # Select the first imported entry
@@ -829,19 +831,19 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.lifetimeRandom.setValue(self.current_particle.dynamics_block.lifetime_random.get_val())
             self.maxFrame.setValue(self.current_particle.dynamics_block.max_frame.get_val())
             self.rateRandom.setValue(self.current_particle.dynamics_block.rate_random.get_val())
-            self.volumeType.setCurrentIndex(self.current_particle.dynamics_block.volume_type)
+            self.volumeType.setCurrentIndex(self.current_particle.dynamics_block.flags.get_val_flag_name("VolumeType"))
             self.volumeSweep.setValue(self.current_particle.dynamics_block.volume_sweep.get_val())
             self.volumeMinRadius.setValue(self.current_particle.dynamics_block.volume_minimum_radius.get_val())
             self.volumeSize.setValue(self.current_particle.dynamics_block.volume_size.get_val())
             self.airResistance.setValue(self.current_particle.dynamics_block.air_resistance.get_val())
             self.momentRandom.setValue(self.current_particle.dynamics_block.moment_random.get_val())
             self.spread.setValue(self.current_particle.dynamics_block.spread.get_val())
-            self.followEmitter.setChecked(self.current_particle.dynamics_block.follow_emitter)
-            self.followEmitterChild.setChecked(self.current_particle.dynamics_block.follow_emitter_child)
-            self.fixedDensity.setChecked(self.current_particle.dynamics_block.fixed_density)
-            self.fixedInterval.setChecked(self.current_particle.dynamics_block.fixed_interval)
-            self.inheritScale.setChecked(self.current_particle.dynamics_block.inherit_scale)
-            
+            self.followEmitter.setChecked(self.current_particle.dynamics_block.flags.get_val_flag_name("FollowEmitter"))
+            self.followEmitterChild.setChecked(self.current_particle.dynamics_block.flags.get_val_flag_name("FollowEmitterChild"))
+            self.fixedDensity.setChecked(self.current_particle.dynamics_block.flags.get_val_flag_name("FixedDensity"))
+            self.fixedInterval.setChecked(self.current_particle.dynamics_block.flags.get_val_flag_name("FixedInterval"))
+            self.inheritScale.setChecked(self.current_particle.dynamics_block.flags.get_val_flag_name("InheritScale"))
+
     def hide_all_particle_settings_tabs(self):
         for i in range(self.particleSettingsTabs.count()):
             self.particleSettingsTabs.setTabVisible(i, False)
@@ -978,9 +980,10 @@ class PgpEditor(QtWidgets.QMainWindow):
             # Try to read data from JSON file
             try:
                 particle.unpack_json(pyaurum.read_json_file(import_file))
-            except Exception:
+            except Exception as e:
                 # todo: better exception handling?
-                self.show_critical(f"An error occured when importing from \"{import_file}\".")
+                self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
+                print(e)
                 new_particle_count -= 1
                 continue
 
@@ -1014,17 +1017,17 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.current_particle.name = text
         self.update_current_particle_list_item()
     def set_particle_volume_type(self, val):
-        self.current_particle.dynamics_block.volume_type = jsystem.jpac210.VolumeTypes(val)
+        self.current_particle.dynamics_block.flags.set_val_flag_name("VolumeType", val)
     def set_particle_follow_emitter(self, val: bool):
-        self.current_particle.dynamics_block.follow_emitter = val
+        self.current_particle.dynamics_block.flags.set_val_flag_name("FollowEmitter", val)
     def set_particle_follow_emitter_child(self, val: bool):
-        self.current_particle.dynamics_block.follow_emitter_child = val
+        self.current_particle.dynamics_block.flags.set_val_flag_name("FollowEmitterChild", val)
     def set_particle_fixed_density(self, val: bool):
-        self.current_particle.dynamics_block.fixed_density = val
+        self.current_particle.dynamics_block.flags.set_val_flag_name("FixedDensity", val)
     def set_particle_fixed_interval(self, val: bool):
-        self.current_particle.dynamics_block.fixed_interval = val
+        self.current_particle.dynamics_block.flags.set_val_flag_name("FixedInterval", val)
     def set_particle_inherit_scale(self, val: bool):
-        self.current_particle.dynamics_block.inherit_scale = val
+        self.current_particle.dynamics_block.flags.set_val_flag_name("InheritScale", val)
 
     # ---------------------------------------------------------------------------------------------
     # Texture editing
@@ -1064,9 +1067,10 @@ class PgpEditor(QtWidgets.QMainWindow):
             # Try to read data from BTI file
             try:
                 texture.bti_data = pyaurum.read_bin_file(import_file)
-            except Exception:
+            except Exception as e:
                 # todo: better exception handling?
-                self.show_critical(f"An error occured when importing from \"{import_file}\".")
+                self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
+                print(e)
                 new_texture_count -= 1
                 continue
 

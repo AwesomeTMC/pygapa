@@ -156,6 +156,69 @@ class FlagConditionalChunk(ConditionalChunk):
             return True
         else:
             return False
-    
-       
-    
+
+class Flag():
+    def __init__(self, name, right_shift, mask, flag_type):
+        self.name = name
+        self.right_shift = right_shift
+        self.mask = mask
+        self.flag_type = flag_type
+# abstract, meant to be used in multi inheritance
+class FlagChunk():
+    def __init__(self) -> None:
+        self.assigned_flags = []
+    def pack_json(self, obj: dict):
+        for flag in self.assigned_flags:
+            val = self.get_val_flag(flag)
+            obj[flag.name] = val
+    def unpack_json(self, entry):
+        self.val = 0
+        for flag in self.assigned_flags:
+            val = entry[flag.name]
+            self.set_val_flag(flag, val)
+    def set_val_flag_name(self, flag_name, val):
+        flag = self.get_flag(flag_name)
+        if not flag:
+            raise NameError("Could not find flag with name", flag_name)
+        self.set_val_flag(flag, val)
+    def set_val_flag(self, flag, val):
+        val = int(val)
+        self.set_val(set_flag(self.get_val(), flag.right_shift, flag.mask, int(val)))
+    def get_val_flag_name(self, flag_name: str):
+        flag = self.get_flag(flag_name)
+        if not flag:
+            raise NameError("Could not find flag with name", flag_name)
+        return self.get_val_flag(flag)
+    def get_val_flag(self, flag: Flag):
+        val = flag.flag_type(get_flag_int(self.get_val(), flag.right_shift, flag.mask))
+        return val
+    def assign_flag(self, name, right_shift, mask, flag_type, default_val=0):
+        flag = Flag(name, right_shift, mask, flag_type)
+        self.assigned_flags.append(flag)
+        if int(default_val) != 0:
+            self.set_val_flag(flag, default_val)
+    def get_flag(self, name) -> Flag:
+        for flag in self.assigned_flags:
+            if (flag.name == name):
+                return flag
+        return None
+class Flag32Chunk(FlagChunk,U32Chunk):
+    def __init__(self, name, default_val=0):
+        FlagChunk.__init__(self)
+        U32Chunk.__init__(self,name,default_val)
+class Flag16Chunk(FlagChunk,U16Chunk):
+    def __init__(self, name, default_val=0):
+        FlagChunk.__init__(self)
+        U16Chunk.__init__(self,name,default_val)
+class Flag8Chunk(FlagChunk,U8Chunk):
+    def __init__(self, name, default_val=0):
+        FlagChunk.__init__(self)
+        U8Chunk.__init__(self,name,default_val)
+def get_flag_int(var, right_shift, mask):
+    return var >> right_shift & mask
+# set a flag to a value no matter what was in it before.
+# returns the result
+def set_flag(var, left_shift, mask, val):
+    result = var & ~(mask << left_shift)
+    result |= (val << left_shift)
+    return result
