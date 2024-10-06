@@ -228,7 +228,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.maxFrame.valueChanged.connect(lambda s: self.current_particle.dynamics_block.max_frame.set_val(s))
         self.rateRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.rate_random.set_val(s))
         
-        for volume_type in jsystem.jpac210.VolumeTypes:
+        for volume_type in jsystem.jpac210.VolumeType:
             self.volumeType.addItem(volume_type.name)
         
         self.volumeType.currentIndexChanged.connect(self.set_particle_volume_type)

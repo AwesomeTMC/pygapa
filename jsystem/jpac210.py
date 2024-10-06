@@ -68,7 +68,7 @@ class JPADynamicsBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
         self.flags = Flag32Chunk("Flags")
-        self.flags.assign_flag("VolumeType", 8, 0x07, VolumeTypes, VolumeTypes.CUBE) # 8, 9, 10
+        self.flags.assign_flag("VolumeType", 8, 0x07, VolumeType, VolumeType.CUBE) # 8, 9, 10
         self.flags.assign_flag("FixedDensity", 0, 0x01, bool) # 0
         self.flags.assign_flag("FixedInterval", 1, 0x01, bool) # 1
         self.flags.assign_flag("InheritScale", 2, 0x01, bool) # 2
@@ -159,7 +159,16 @@ class JPADynamicsBlock(JPAChunk):
 class JPAFieldBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("FieldFlags")
+        self.flags = Flag32Chunk("FieldFlags")
+        self.flags.assign_flag("FieldType", 0, 0xF, FieldType) # 0, 1, 2, 3
+        self.flags.assign_flag("VelocityType", 8, 0x03, FieldAddType) # 8, 9
+        self.flags.assign_flag("NoInheritRotate", 17, 0x1, bool) # 17
+        self.flags.assign_flag("AirDrag", 18, 0x1, bool) # 18
+        self.flags.assign_flag("FadeUseEnTime", 19, 0x1, bool) # 19
+        self.flags.assign_flag("FadeUseDisTime", 20, 0x1, bool) # 20
+        self.flags.assign_flag("FadeUseFadeIn", 21, 0x1, bool) # 21
+        self.flags.assign_flag("FadeUseFadeOut", 22, 0x1, bool) # 22
+        self.flags.assign_flag("UseMaxDist", 23, 0x1, bool) # 23
         self.position_x = F32Chunk("PositionX")
         self.position_y = F32Chunk("PositionY")
         self.position_z = F32Chunk("PositionZ")
@@ -224,7 +233,7 @@ class JPAFieldBlock(JPAChunk):
 class JPAKeyBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.key_type = U8Chunk("KeyType")
+        self.key_type = U8Chunk("KeyType") # KeyType enum
         self.key_count = U8Chunk("KeyCount")
         self.loop = BoolChunk("Loop")
         self.auto_chunks = [self.key_type, self.key_count, Offset(0x1), self.loop]
@@ -279,20 +288,66 @@ class JPAKeyBlock(JPAChunk):
 class JPABaseShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("BaseShapeFlags") # 0x8
+        # Unknown flags: 11, 13, 23 
+        # 19 (may be unused)
+        self.flags = Flag32Chunk("BaseShapeFlags") # 0x8
+        self.flags.assign_flag("ShapeType", 0, 0xF, ShapeType) # 0, 1, 2, 3
+        self.flags.assign_flag("DirectionType", 4, 0x7, DirectionType) # 4, 5, 6
+        self.flags.assign_flag("RotationType", 7, 0x7, RotationType) # 7, 8, 9
+        self.flags.assign_flag("PlaneType", 10, 0x1, PlaneType) # 10
+        self.flags.assign_flag("FlagsUnk11", 11, 0x1, bool)
+        self.flags.assign_flag("IsGlobalColorAnimation", 12, 0x01, bool) # 12
+        self.flags.assign_flag("FlagsUnk13", 13, 0x1, bool)
+        self.flags.assign_flag("IsGlobalTextureAnimation", 14, 0x01, bool) # 14
+        self.flags.assign_flag("ColorInSelect", 15, 0x7, int) # 15, 16, 17
+        self.flags.assign_flag("AlphaInSelect", 18, 0x1, int) # 18
+        # 19 is never set in SMG1 or SMG2.
+        self.flags.assign_flag("IsEnableProjection",20, 0x01, bool) # 20
+        self.flags.assign_flag("IsDrawForwardAhead", 21, 0x1, bool) # 21
+        self.flags.assign_flag("IsDrawPrintAhead", 22, 0x1, bool) # 22
+        self.flags.assign_flag("FlagsUnk23", 23, 0x1, bool)
+        self.flags.assign_flag("IsEnableTexScrollAnim", 24, 0x1, bool) # 24
+        self.flags.assign_flag("DoubleTilingS", 25, 0x1, bool) # 25
+        self.flags.assign_flag("DoubleTilingT", 26, 0x1, bool) # 26
+        self.flags.assign_flag("IsNoDrawParent", 27, 0x1, bool) # 27
+        self.flags.assign_flag("IsNoDrawChild", 28, 0x1, bool) # 28 - never set
         # local primary_color_data_offset 0xC - 0xE
         # local environment_color_data_offset 0xE-0x10
         self.base_size_x = F32Chunk("BaseSizeX") # 0x10
         self.base_size_y = F32Chunk("BaseSizeY") # 0x14
-        self.blend_mode_flags = U16Chunk("BlendModeFlags") # 0x18
-        self.alpha_compare_flags = U8Chunk("AlphaCompareFlags") # 0x1A
+        # Unknown: 10, 14
+        self.blend_mode_flags = Flag16Chunk("BlendModeFlags") # 0x18
+        self.blend_mode_flags.assign_flag("BlendMode", 0, 0x3, BlendMode), # 0, 1
+        self.blend_mode_flags.assign_flag("SourceFactor", 2, 0xF, BlendFactor) # 2, 3, 4, 5
+        self.blend_mode_flags.assign_flag("DestinationFactor", 6, 0xF, BlendFactor) # 6, 7, 8, 9
+        self.blend_mode_flags.assign_flag("BlendModeFlagsUnk10", 10, 0x1, bool)
+        self.blend_mode_flags.assign_flag("BlendModeFlagsUnk14", 14, 0x1, bool)
+        self.alpha_compare_flags = Flag8Chunk("AlphaCompareFlags") # 0x1A
+        self.alpha_compare_flags.assign_flag("AlphaCompareType0", 0, 0x7, CompareType) # 0, 1, 2
+        self.alpha_compare_flags.assign_flag("AlphaOperator", 3, 0x03, AlphaOperator) # 3, 4
+        self.alpha_compare_flags.assign_flag("AlphaCompareType1", 5, 0x7, CompareType) # 5, 6, 7
         self.alpha_reference_0 = U8Chunk("AlphaReference0") # 0x1B
         self.alpha_reference_1 = U8Chunk("AlphaReference1") # 0x1C
-        self.z_mode_flags = U8Chunk("ZModeFlags") # 0x1D
-        self.texture_flags = U8Chunk("TextureFlags") # 0x1E
+        # Unknown: 5
+        self.z_mode_flags = Flag8Chunk("ZModeFlags") # 0x1D
+        self.z_mode_flags.assign_flag("DepthTest", 0, 0x1, bool) # 0
+        self.z_mode_flags.assign_flag("DepthCompareType", 1, 0x7, CompareType) # 1, 2, 3
+        self.z_mode_flags.assign_flag("DepthWrite", 4, 0x1, bool) # 4
+        self.z_mode_flags.assign_flag("ZModeFlagsUnk5", 5, 0x1, int) # 4
+        # Unknown: 1
+        self.texture_flags = Flag8Chunk("TextureFlags") # 0x1E
+        self.texture_flags.assign_flag("IsEnableTexAnim", 0, 0x1, bool) # 0
+        self.texture_flags.assign_flag("TexFlagsUnk1", 1, 0x1, bool)
+        self.texture_flags.assign_flag("TexCalcIndexType", 2, 0x7, CalcIndexType) # 2, 3, 4
         # local texture_index_anim_count 0x1F-0x20
         self.texture_index = U8Chunk("TextureIndex") # 0x20
-        self.color_flags = U8Chunk("ColorFlags") # 0x21
+        # [0, 2]
+        self.color_flags = Flag8Chunk("ColorFlags") # 0x21
+        self.color_flags.assign_flag("ColorFlagsUnk0", 0, 0x1, bool)
+        self.color_flags.assign_flag("IsPrimaryColorAnimEnabled", 1, 0x1, bool) # 1
+        self.color_flags.assign_flag("ColorFlagsUnk2", 2, 0x1, bool)
+        self.color_flags.assign_flag("IsEnvironmentColorAnimEnabled", 3, 0x1, bool), # 3
+        self.color_flags.assign_flag("ColorCalcIndexType", 4, 0x7, CalcIndexType) # 4, 5, 6
         #self.primary_color_animation_data_count = U8Chunk("PrimaryColorAnimationDataCount", 0, 0x22) # 
         #self.environment_color_animation_data_count = U8Chunk("EnvironmentColorAnimationDataCount", 0, 0x23) #
         self.color_animation_max_frame = U16Chunk("ColorAnimationMaxFrame") # 0x24
@@ -447,7 +502,19 @@ class JPABaseShape(JPAChunk):
 class JPAExtraShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("ExtraShapeFlags")
+        # Unknown set flags: 2, 3
+        self.flags = Flag32Chunk("ExtraShapeFlags")
+        self.flags.assign_flag("IsEnableScale", 0, 0x1, bool) # 0
+        self.flags.assign_flag("IsDiffXY", 1, 0x1, bool) # 1
+        self.flags.assign_flag("FlagsUnk2", 2, 0x1, bool)
+        self.flags.assign_flag("FlagsUnk3", 3, 0x1, bool)
+        self.flags.assign_flag("ScaleAnimTypeX", 8, 0x03, CalcScaleAnimType) # 8, 9
+        self.flags.assign_flag("ScaleAnimTypeY", 10, 0x03, CalcScaleAnimType) # 10, 11
+        self.flags.assign_flag("PivotX", 12, 0x03, int) # 12, 13
+        self.flags.assign_flag("PivotY", 14, 0x03, int) # 14, 15
+        self.flags.assign_flag("IsEnableAlpha", 16, 0x1, bool) # 16
+        self.flags.assign_flag("IsEnableSinWave", 17, 0x1, bool) # 17
+        self.flags.assign_flag("IsEnableRotate", 24, 0x1, bool) # 24
         self.scale_in_timing = F32Chunk("ScaleInTiming")
         self.scale_out_timing = F32Chunk("ScaleOutTiming")
         self.scale_in_value_x = F32Chunk("ScaleInValueX")
@@ -519,7 +586,21 @@ class JPAExtraShape(JPAChunk):
 class JPAChildShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("ChildShapeFlags")
+        # Unknown but set: 19, 20
+        self.flags = Flag32Chunk("Flags")
+        self.flags.assign_flag("ShapeType", 0, 0xF, ShapeType) # 0, 1, 2, 3
+        self.flags.assign_flag("DirectionType", 4, 0x7, DirectionType) # 4, 5, 6
+        self.flags.assign_flag("RotationType", 7, 0x7, RotationType) # 7, 8, 9
+        self.flags.assign_flag("PlaneType", 10, 0x1, PlaneType) # 10
+        self.flags.assign_flag("IsInheritedScale", 16, 0x01, bool) # 16
+        self.flags.assign_flag("IsInheritedAlpha", 17, 0x01, bool) # 17
+        self.flags.assign_flag("IsInheritedRGB", 18, 0x01, bool) # 18
+        self.flags.assign_flag("FlagsUnk19", 19, 0x01, bool)
+        self.flags.assign_flag("FlagsUnk20", 20, 0x01, bool)
+        self.flags.assign_flag("IsEnableField", 21, 0x01, bool) # 21
+        self.flags.assign_flag("IsEnableScaleOut", 22, 0x01, bool) # 22
+        self.flags.assign_flag("IsEnableAlphaOut", 23, 0x01, bool) # 23
+        self.flags.assign_flag("IsEnableRotate", 24, 0x01, bool) # 24
         self.position_random = F32Chunk("PositionRandom")
         self.base_velocity = F32Chunk("BaseVelocity")
         self.base_velocity_random = F32Chunk("BaseVelocityRandom")
@@ -587,7 +668,10 @@ class JPAChildShape(JPAChunk):
 class JPAExTexShape(JPAChunk):
     def __init__(self):
         self.binary_data = None
-        self.flags = U32Chunk("ExTexFlags")
+        # Only 2 bits are set. That's crazy.
+        self.flags = Flag32Chunk("ExTexFlags")
+        self.flags.assign_flag("IndirectTextureMode", 0, 0x1, IndirectTextureMode)
+        self.flags.assign_flag("UseSecondTextureIndex", 8, 0x1, bool)
         self.indirect_texture_matrix_0_0 = F32Chunk("IndirectTextureMatrix[0][0]")
         self.indirect_texture_matrix_0_1 = F32Chunk("IndirectTextureMatrix[0][1]")
         self.indirect_texture_matrix_0_2 = F32Chunk("IndirectTextureMatrix[0][2]")
@@ -944,11 +1028,122 @@ class JParticlesContainer:
         # Return packed data
         return out_buf
 
-class VolumeTypes(enum.IntEnum):
-    CUBE = 0
-    SPHERE = 1
-    CYLINDER = 2
-    TORUS = 3
-    POINT = 4
-    CIRCLE = 5
-    LINE = 6
+class VolumeType(enum.IntEnum):
+    CUBE = 0x00
+    SPHERE = 0x01
+    CYLINDER = 0x02
+    TORUS = 0x03
+    POINT = 0x04
+    CIRCLE = 0x05
+    LINE = 0x06
+
+class FieldType(enum.IntEnum):
+    GRAVITY = 0x00
+    AIR = 0x01
+    MAGNET = 0x02
+    NEWTON = 0x03
+    VORTEX = 0x04
+    RANDOM = 0x05
+    DRAG = 0x06
+    CONVECTION = 0x07
+    SPIN = 0x08
+
+class FieldAddType(enum.IntEnum):
+    FIELD_ACCEL = 0x00
+    BASE_VELOCITY = 0x01
+    FIELD_VELOCITY = 0x02
+
+class KeyType(enum.IntEnum):
+    RATE = 0x00
+    VOLUME_SIZE = 0x01
+    VOLUME_SWEEP = 0x02
+    VOLUME_MINIMUMRADIUS = 0x03
+    LIVETIME = 0x04
+    MOMENT = 0x05
+    INITIAL_VELOCITY_OMNI = 0x06
+    INITIAL_VELOCITY_AXIS = 0x07
+    INITIAL_VELOCIRT_DIRECTION = 0x08
+    SPREAD = 0x09
+    SCALE = 0x0A
+
+class DirectionType(enum.IntEnum):
+    VELOCITY = 0x00
+    POSITION = 0x01
+    POSITION_INVERSE = 0x02
+    EMITTER_DIRECTION = 0x03
+    PREVIOUS_PARTICLE = 0x04
+    DIR_5 = 0x05
+
+class RotationType(enum.IntEnum):
+    Y = 0x00
+    X = 0x01
+    Z = 0x02
+    XYZ = 0x03
+    Y_JIGGLE = 0x04
+
+class PlaneType(enum.IntEnum):
+    XY = 0x00
+    XZ = 0x01
+    # X = 0x02 - there would need to be more than 1 bit for this to do anything
+
+class ShapeType(enum.IntEnum):
+    POINT = 0x00
+    LINE = 0x01
+    BILLBOARD = 0x02
+    DIRECTION = 0x03
+    DIRECTION_CROSS = 0x04
+    STRIPE = 0x05
+    STRIPE_CROSS = 0x06
+    ROTATION = 0x07
+    ROTATION_CROSS = 0x08
+    DIRECTION_BILLBOARD = 0x09
+    Y_BILLBOARD = 0x0A
+
+class BlendMode(enum.IntEnum):
+    NONE = 0
+    BLEND = 1
+    LOGIC = 2
+
+class BlendFactor(enum.IntEnum):
+    ZERO = 0
+    ONE = 1
+    SOURCE_COLOR = 2
+    INVERSE_SOURCE_COLOR = 3
+    SOURCE_COLOR_EXTRA = 4 # TODO figure out why two numbers are mapped to the same thing
+    INVERSE_SOURCE_COLOR_EXTRA = 5 # TODO ^
+    SOURCE_ALPHA = 6
+    INVERSE_SOURCE_ALPHA = 7
+    DESTINATION_ALPHA = 8
+    INVERSE_DESTINATION_ALPHA = 9
+
+class CompareType(enum.IntEnum):
+    NEVER = 0
+    LESS_THAN = 1
+    LESS_THAN_EQUAL = 2
+    EQUAL = 3
+    NOT_EQUAL = 4
+    GREATER_THAN_EQUAL = 5
+    GREATER_THAN = 6
+    ALWAYS = 7
+
+class IndirectTextureMode(enum.IntEnum):
+    OFF = 0
+    SUBTRACT = 1
+
+class AlphaOperator(enum.IntEnum):
+    AND = 0
+    OR = 1
+    XOR = 2
+    XNOR = 3
+
+class CalcIndexType(enum.IntEnum):
+    NORMAL = 0
+    REPEAT = 1
+    REVERSE = 2
+    MERGE = 3
+    RANDOM = 4
+
+class CalcScaleAnimType(enum.IntEnum):
+    NORMAL = 0
+    REPEAT = 1
+    REVERSE = 2
