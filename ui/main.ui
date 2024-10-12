@@ -729,140 +729,7 @@
            <locale language="English" country="UnitedStates"/>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
-           <item row="1" column="0">
-            <widget class="Line" name="line_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0" columnstretch="1,2">
-             <property name="horizontalSpacing">
-              <number>24</number>
-             </property>
-             <property name="verticalSpacing">
-              <number>6</number>
-             </property>
-             <item row="4" column="1">
-              <widget class="QTreeWidget" name="treeParticleBlocks">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <attribute name="headerVisible">
-                <bool>false</bool>
-               </attribute>
-               <column>
-                <property name="text">
-                 <string notr="true">1</string>
-                </property>
-               </column>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="textParticleName">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelParticleName">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>Name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="2">
-              <widget class="QLabel" name="labelParticleInfo">
-               <property name="palette">
-                <palette>
-                 <active>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>255</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </active>
-                 <inactive>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>255</red>
-                     <green>0</green>
-                     <blue>0</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </inactive>
-                 <disabled>
-                  <colorrole role="WindowText">
-                   <brush brushstyle="SolidPattern">
-                    <color alpha="255">
-                     <red>120</red>
-                     <green>120</green>
-                     <blue>120</blue>
-                    </color>
-                   </brush>
-                  </colorrole>
-                 </disabled>
-                </palette>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>All particles are automatically sorted when saved as the game performs binary search.</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPlainTextEdit" name="textParticleTextures">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="Line" name="line">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="labelParticleBlocks">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>Blocks</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="labelParticleTextures">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>Textures</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="0">
+           <item row="4" column="0">
             <widget class="QScrollArea" name="scrollArea">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -958,7 +825,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>4</number>
                  </property>
                  <property name="documentMode">
                   <bool>false</bool>
@@ -1811,6 +1678,13 @@
                   <layout class="QGridLayout" name="gridLayout_11">
                    <item row="0" column="0">
                     <layout class="QGridLayout" name="gridLayout_9">
+                     <item row="2" column="2">
+                      <widget class="QLabel" name="label_27">
+                       <property name="text">
+                        <string>Moment Random</string>
+                       </property>
+                      </widget>
+                     </item>
                      <item row="3" column="3">
                       <widget class="QCheckBox" name="followEmitterChild">
                        <property name="text">
@@ -1818,8 +1692,18 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="airResistance">
+                     <item row="1" column="3">
+                      <widget class="QSpinBox" name="volumeSize">
+                       <property name="minimum">
+                        <number>-999999999</number>
+                       </property>
+                       <property name="maximum">
+                        <number>999999999</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="3">
+                      <widget class="QDoubleSpinBox" name="momentRandom">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -1840,8 +1724,26 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="1">
-                      <widget class="QComboBox" name="volumeType"/>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_24">
+                       <property name="text">
+                        <string>Volume Min. Radius</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_26">
+                       <property name="text">
+                        <string>Air Resistance</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="2">
+                      <widget class="QLabel" name="label_23">
+                       <property name="text">
+                        <string>Volume Sweep</string>
+                       </property>
+                      </widget>
                      </item>
                      <item row="0" column="0">
                       <widget class="QLabel" name="label_19">
@@ -1850,61 +1752,17 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="2">
-                      <widget class="QLabel" name="label_25">
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_28">
                        <property name="text">
-                        <string>Volume Size</string>
+                        <string>Spread</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1">
-                      <widget class="QDoubleSpinBox" name="spread">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QDoubleSpinBox" name="volumeMinRadius">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_26">
+                     <item row="4" column="1">
+                      <widget class="QCheckBox" name="fixedInterval">
                        <property name="text">
-                        <string>Air Resistance</string>
+                        <string>Fixed Interval</string>
                        </property>
                       </widget>
                      </item>
@@ -1930,39 +1788,25 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="2">
-                      <widget class="QLabel" name="label_23">
+                     <item row="0" column="1">
+                      <widget class="QComboBox" name="volumeType"/>
+                     </item>
+                     <item row="1" column="2">
+                      <widget class="QLabel" name="label_25">
                        <property name="text">
-                        <string>Volume Sweep</string>
+                        <string>Volume Size</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="0">
-                      <widget class="QLabel" name="label_24">
+                     <item row="4" column="0">
+                      <widget class="QCheckBox" name="fixedDensity">
                        <property name="text">
-                        <string>Volume Min. Radius</string>
+                        <string>Fixed Density</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="3">
-                      <widget class="QSpinBox" name="volumeSize">
-                       <property name="minimum">
-                        <number>-999999999</number>
-                       </property>
-                       <property name="maximum">
-                        <number>999999999</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="2">
-                      <widget class="QLabel" name="label_27">
-                       <property name="text">
-                        <string>Moment Random</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="3">
-                      <widget class="QDoubleSpinBox" name="momentRandom">
+                     <item row="1" column="1">
+                      <widget class="QDoubleSpinBox" name="volumeMinRadius">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -1990,24 +1834,47 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
-                      <widget class="QLabel" name="label_28">
-                       <property name="text">
-                        <string>Spread</string>
+                     <item row="3" column="1">
+                      <widget class="QDoubleSpinBox" name="spread">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="0">
-                      <widget class="QCheckBox" name="fixedDensity">
-                       <property name="text">
-                        <string>Fixed Density</string>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="airResistance">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
                        </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="QCheckBox" name="fixedInterval">
-                       <property name="text">
-                        <string>Fixed Interval</string>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
                        </property>
                       </widget>
                      </item>
@@ -2022,11 +1889,665 @@
                    </item>
                   </layout>
                  </widget>
+                 <widget class="QWidget" name="tab">
+                  <attribute name="title">
+                   <string>General</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_13">
+                   <item row="0" column="0">
+                    <layout class="QGridLayout" name="gridLayout_12" columnstretch="1,0,1,0,1,0,1">
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_29">
+                       <property name="text">
+                        <string>Field Type</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="6">
+                      <widget class="QComboBox" name="velocityType"/>
+                     </item>
+                     <item row="1" column="4">
+                      <widget class="QDoubleSpinBox" name="param2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="6">
+                      <widget class="QDoubleSpinBox" name="param3">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QLabel" name="label_35">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>X</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="5">
+                      <widget class="QLabel" name="label_93">
+                       <property name="text">
+                        <string>Z</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="2">
+                      <widget class="QDoubleSpinBox" name="positionX">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QLabel" name="label_36">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>X</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="4">
+                      <widget class="QLabel" name="label_94">
+                       <property name="text">
+                        <string>Velocity Type</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="3">
+                      <widget class="QLabel" name="label_37">
+                       <property name="text">
+                        <string>2</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="2">
+                      <widget class="QCheckBox" name="noInheritRotate">
+                       <property name="layoutDirection">
+                        <enum>Qt::LeftToRight</enum>
+                       </property>
+                       <property name="text">
+                        <string>Don't Inherit
+Rotation</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="4">
+                      <widget class="QDoubleSpinBox" name="directionY">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0">
+                      <widget class="QCheckBox" name="airDrag">
+                       <property name="text">
+                        <string>Air Drag</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="2">
+                      <widget class="QComboBox" name="fieldType"/>
+                     </item>
+                     <item row="3" column="6">
+                      <widget class="QDoubleSpinBox" name="directionZ">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="4">
+                      <widget class="QDoubleSpinBox" name="positionY">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_32">
+                       <property name="text">
+                        <string>Field Direction</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="2">
+                      <widget class="QDoubleSpinBox" name="directionX">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="3">
+                      <widget class="QLabel" name="label_38">
+                       <property name="text">
+                        <string>Y</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_30">
+                       <property name="text">
+                        <string>Field Param</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="5">
+                      <widget class="QLabel" name="label_91">
+                       <property name="text">
+                        <string>3</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QLabel" name="label_34">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>1</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="2">
+                      <widget class="QDoubleSpinBox" name="param1">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_31">
+                       <property name="text">
+                        <string>Field Position</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="6">
+                      <widget class="QDoubleSpinBox" name="positionZ">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="5">
+                      <widget class="QLabel" name="label_92">
+                       <property name="text">
+                        <string>Z</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="3">
+                      <widget class="QLabel" name="label_39">
+                       <property name="text">
+                        <string>Y</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="4">
+                      <widget class="QLabel" name="label_99">
+                       <property name="text">
+                        <string>Cycle</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="6">
+                      <widget class="QSpinBox" name="cycle">
+                       <property name="minimum">
+                        <number>-999999999</number>
+                       </property>
+                       <property name="maximum">
+                        <number>999999999</number>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_5">
+                  <attribute name="title">
+                   <string>Fade</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_28">
+                   <item row="0" column="0">
+                    <layout class="QGridLayout" name="gridLayout_27">
+                     <item row="3" column="0">
+                      <widget class="QCheckBox" name="fadeUseDistanceTime">
+                       <property name="text">
+                        <string>Use Distance Time</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QLabel" name="label_96">
+                       <property name="text">
+                        <string>Fade Out</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QCheckBox" name="fadeUseFadeIn">
+                       <property name="text">
+                        <string>Use Fade In</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QLabel" name="label_97">
+                       <property name="text">
+                        <string>Enter Time</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QLabel" name="label_98">
+                       <property name="text">
+                        <string>Distance Time</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QCheckBox" name="fadeUseEnterTime">
+                       <property name="text">
+                        <string>Use Enter Time</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QLabel" name="label_95">
+                       <property name="text">
+                        <string>Fade In</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QCheckBox" name="fadeUseFadeOut">
+                       <property name="text">
+                        <string>Use Fade Out</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="2">
+                      <widget class="QDoubleSpinBox" name="fadeOut">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="2">
+                      <widget class="QDoubleSpinBox" name="fadeIn">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="2">
+                      <widget class="QDoubleSpinBox" name="enterTime">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="2">
+                      <widget class="QDoubleSpinBox" name="distanceTime">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
               </layout>
              </widget>
             </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0" columnstretch="1,2">
+             <property name="horizontalSpacing">
+              <number>24</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>6</number>
+             </property>
+             <item row="4" column="1">
+              <widget class="QTreeWidget" name="treeParticleBlocks">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <attribute name="headerVisible">
+                <bool>false</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string notr="true">1</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="textParticleName">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="labelParticleName">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>Name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="2">
+              <widget class="QLabel" name="labelParticleInfo">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>120</red>
+                     <green>120</green>
+                     <blue>120</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>All particles are automatically sorted when saved as the game performs binary search.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPlainTextEdit" name="textParticleTextures">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="Line" name="line">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="labelParticleBlocks">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>Blocks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="labelParticleTextures">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>Textures</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

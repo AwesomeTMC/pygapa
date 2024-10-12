@@ -164,11 +164,10 @@ class JPAFieldBlock(JPAChunk):
         self.flags.assign_flag("VelocityType", 8, 0x03, FieldAddType) # 8, 9
         self.flags.assign_flag("NoInheritRotate", 17, 0x1, bool) # 17
         self.flags.assign_flag("AirDrag", 18, 0x1, bool) # 18
-        self.flags.assign_flag("FadeUseEnTime", 19, 0x1, bool) # 19
-        self.flags.assign_flag("FadeUseDisTime", 20, 0x1, bool) # 20
+        self.flags.assign_flag("FadeUseEnterTime", 19, 0x1, bool) # 19
+        self.flags.assign_flag("FadeUseDistanceTime", 20, 0x1, bool) # 20
         self.flags.assign_flag("FadeUseFadeIn", 21, 0x1, bool) # 21
         self.flags.assign_flag("FadeUseFadeOut", 22, 0x1, bool) # 22
-        self.flags.assign_flag("UseMaxDist", 23, 0x1, bool) # 23
         self.position_x = F32Chunk("PositionX")
         self.position_y = F32Chunk("PositionY")
         self.position_z = F32Chunk("PositionZ")
@@ -506,6 +505,7 @@ class JPAExtraShape(JPAChunk):
         self.flags = Flag32Chunk("ExtraShapeFlags")
         self.flags.assign_flag("IsEnableScale", 0, 0x1, bool) # 0
         self.flags.assign_flag("IsDiffXY", 1, 0x1, bool) # 1
+        # Note: Unk2 and Unk3 are either both set, or neither set.
         self.flags.assign_flag("FlagsUnk2", 2, 0x1, bool)
         self.flags.assign_flag("FlagsUnk3", 3, 0x1, bool)
         self.flags.assign_flag("ScaleAnimTypeX", 8, 0x03, CalcScaleAnimType) # 8, 9
