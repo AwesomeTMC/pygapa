@@ -531,19 +531,6 @@ def get_color_table(buffer: bytearray, offset: int, count: int) -> list[dict]:
         new_list.append(obj)
     return new_list
 
-def get_j3dkeyframe_table(buffer: bytearray, offset: int, count: int) -> list[dict]:
-    new_list = []
-    for i in range(count):
-        obj = dict()
-        obj["Time"] = get_f32(buffer, offset)
-        obj["Value"] = get_f32(buffer, offset + 0x4)
-        obj["TangentIn"] = get_f32(buffer, offset + 0x8)
-        obj["TangentOut"] = get_f32(buffer, offset + 0xC)
-        offset += 0x10
-        new_list.append(obj)
-    return new_list
-
-
 def pack_color_table(color_list: list[dict]) -> bytearray:
     new_list = bytearray()
     for obj in color_list:
@@ -555,13 +542,4 @@ def pack_u8_array(arr: list[int]) -> bytearray:
     new_list = bytearray()
     for num in arr:
         new_list.extend(pack_u8(num))
-    return new_list
-
-def pack_j3dkeyframe_table(key_list: list[dict]) -> bytearray:
-    new_list = bytearray()
-    for keyframe in key_list:
-        new_list.extend(pack_f32(keyframe["Time"]))
-        new_list.extend(pack_f32(keyframe["Value"]))
-        new_list.extend(pack_f32(keyframe["TangentIn"]))
-        new_list.extend(pack_f32(keyframe["TangentOut"]))
     return new_list

@@ -6,6 +6,7 @@ from copy import deepcopy
 
 __all__ = [
     # Classes
+    "JPAKeyframe",
     "JPATexture",
     "JPAChunk",
     "JPADynamicsBlock",
@@ -63,6 +64,36 @@ class JPAChunk:
     def pack_json(self):
         pass
 
+class JPAKeyframe(JPAChunk):
+    def __init__(self):
+        self.time = F32Chunk("Time", 0.0)
+        self.value = F32Chunk("Value", 0.0)
+        self.tan_in = F32Chunk("TangentIn", 0.0)
+        self.tan_out = F32Chunk("TangentOut", 0.0)
+    def unpack(self, buffer, offset: int = 0):
+        self.time.unpack(buffer, offset)
+        self.value.unpack(buffer, offset + 0x4)
+        self.tan_in.unpack(buffer, offset + 0x8)
+        self.tan_out.unpack(buffer, offset + 0xC)
+    def unpack_json(self, entry):
+        self.time.unpack_json(entry)
+        self.value.unpack_json(entry)
+        self.tan_in.unpack_json(entry)
+        self.tan_out.unpack_json(entry)
+    def pack(self) -> bytes:
+        binary_data = bytearray()
+        binary_data += self.time.pack()
+        binary_data += self.value.pack()
+        binary_data += self.tan_in.pack()
+        binary_data += self.tan_out.pack()
+        return binary_data
+    def pack_json(self):
+        obj = dict()
+        self.time.pack_json(obj)
+        self.value.pack_json(obj)
+        self.tan_in.pack_json(obj)
+        self.tan_out.pack_json(obj)
+        return obj
 
 class JPADynamicsBlock(JPAChunk):
     def __init__(self):
@@ -246,15 +277,21 @@ class JPAKeyBlock(JPAChunk):
         for var in self.auto_chunks:
             var.unpack(buffer, offset)
             offset += var.get_size()
-        
-        self.keyframes = pyaurum.get_j3dkeyframe_table(buffer, offset, self.key_count.val)
+        for i in range(self.key_count.val):
+            keyframe = JPAKeyframe()
+            keyframe.unpack(buffer, offset + (0x10 * i))
+            self.keyframes.append(keyframe)
 
     def unpack_json(self, entry):
         self.binary_data = bytes.fromhex(entry["BinaryData"])
         for var in self.auto_chunks:
             var.unpack_json(entry)
 
-        self.keyframes = entry["Keyframes"]
+        self.keyframes = []
+        for keyframe_json in entry["Keyframes"]:
+            key = JPAKeyframe()
+            key.unpack_json(keyframe_json)
+            self.keyframes.append(key)
 
     def pack(self) -> bytes:
         binary_data = bytearray()
@@ -262,7 +299,8 @@ class JPAKeyBlock(JPAChunk):
         for var in self.auto_chunks:
             binary_data += var.pack()
 
-        binary_data += pyaurum.pack_j3dkeyframe_table(self.keyframes)
+        for keyframe in self.keyframes:
+            binary_data += keyframe.pack()
 
         # compare contents, ignore padding
         self.binary_data = bytearray(self.binary_data)
@@ -278,8 +316,10 @@ class JPAKeyBlock(JPAChunk):
         obj = dict()
         for var in self.auto_chunks:
             var.pack_json(obj)
-        
-        obj["Keyframes"] = self.keyframes
+        keyframes = []
+        for keyframe in self.keyframes:
+            keyframes.append(keyframe.pack_json())
+        obj["Keyframes"] = keyframes
         obj["BinaryData"] = self.binary_data.hex()
         return obj
 
@@ -1057,12 +1097,12 @@ class KeyType(enum.IntEnum):
     RATE = 0x00
     VOLUME_SIZE = 0x01
     VOLUME_SWEEP = 0x02
-    VOLUME_MINIMUMRADIUS = 0x03
-    LIVETIME = 0x04
+    VOLUME_MIN_RADIUS = 0x03
+    LIFETIME = 0x04
     MOMENT = 0x05
-    INITIAL_VELOCITY_OMNI = 0x06
-    INITIAL_VELOCITY_AXIS = 0x07
-    INITIAL_VELOCIRT_DIRECTION = 0x08
+    INIT_VELO_OMNI = 0x06
+    INIT_VELO_AXIS = 0x07
+    INIT_VELO_DIRECTION = 0x08
     SPREAD = 0x09
     SCALE = 0x0A
 

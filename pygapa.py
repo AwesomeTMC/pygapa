@@ -272,6 +272,21 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.distanceTime.valueChanged.connect(lambda s: self.get_current_field_block().distance_time.set_val(s))
         self.cycle.valueChanged.connect(lambda s: self.get_current_field_block().cycle.set_val(s))
 
+        self.keyframeTree.itemSelectionChanged.connect(self.select_keyframe)
+
+        self.keyTime.valueChanged.connect(lambda s: self.set_keyframe_data("Time", s))
+        self.keyValue.valueChanged.connect(lambda s: self.set_keyframe_data("Value", s))
+        self.keyTangentIn.valueChanged.connect(lambda s: self.set_keyframe_data("TangentIn", s))
+        self.keyTangentOut.valueChanged.connect(lambda s: self.set_keyframe_data("TangentOut", s))
+
+        self.keyRemove.clicked.connect(self.remove_selected_keyframe)
+        self.keyAdd.clicked.connect(self.add_keyframe)
+
+        for key_type in jsystem.jpac210.KeyType:
+            self.keyType.addItem(key_type.name)
+        self.keyLoop.toggled.connect(lambda s: self.get_current_key_block().loop.set_val(s))
+        self.keyType.currentIndexChanged.connect(lambda s: self.get_current_key_block().key_type.set_val(s))
+
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
         self.actionPreferences.triggered.connect(self.preferences.show)
@@ -823,7 +838,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.treeParticleBlocks.addTopLevelItem(node)
 
     def select_particle_block(self):
-        # Make sure only one block is selected
+        # Make sure only one block is selected, not 0 or multiple blocks.
         if len(self.treeParticleBlocks.selectedItems()) != 1:
             return
 
@@ -831,6 +846,9 @@ class PgpEditor(QtWidgets.QMainWindow):
         current_block_type = current_block_node.data(0, PBNODE_MODE)
         current_block_data = current_block_node.data(0, PBNODE_DATA)
         print(current_block_node.data(0, PBNODE_MODE))
+        self.particleSettingsTabs.setTabVisible(6, True)
+        self.keySettings.setEnabled(False)
+        self.keyRemove.setEnabled(False)
         self.hide_all_particle_settings_tabs()
         if current_block_type == PgpEditorMode.DYNAMICS_BLOCK:
             # 0-3: Emitter Tabs
@@ -898,10 +916,77 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.enterTime.setValue(current_block_data.enter_time.get_val())
             self.distanceTime.setValue(current_block_data.distance_time.get_val())
             self.cycle.setValue(current_block_data.cycle.get_val())
+        elif current_block_type == PgpEditorMode.KEY_BLOCK:
+            self.keyframeTree.clear()
+            self.particleSettingsTabs.setTabVisible(6, True)
+            self.keyLoop.setChecked(current_block_data.loop.get_val())
+            self.keyType.setCurrentIndex(current_block_data.key_type.get_val())
+            for keyframe in current_block_data.keyframes:
+                self.put_keyframe(keyframe, False)
+    
+    def select_keyframe(self):
+        if len(self.keyframeTree.selectedItems()) != 1:
+            self.keySettings.setEnabled(False)
+            self.keyRemove.setEnabled(False)
+            return
+        current_key_node = self.keyframeTree.currentItem()
+        if not current_key_node:
+            return
+        current_key_data = current_key_node.data(0, PBNODE_DATA)
+        self.keySettings.setEnabled(True)
+        self.keyRemove.setEnabled(True)
+        self.keyTime.setValue(current_key_data.time.get_val())
+        self.keyValue.setValue(current_key_data.value.get_val())
+        self.keyTangentIn.setValue(current_key_data.tan_in.get_val())
+        self.keyTangentOut.setValue(current_key_data.tan_out.get_val())
+    
+    def set_keyframe_data(self, name, val):
+        current_key_node = self.keyframeTree.currentItem()
+        current_key_data = current_key_node.data(0, PBNODE_DATA)
+        if name == "Time":
+            current_key_node.setText(0, "Time " + str(round(val, 4)))
+            current_key_data.time.set_val(val)
+        elif name == "Value":
+            current_key_data.value.set_val(val)
+        elif name == "TangentIn":
+            current_key_data.tan_in.set_val(val)
+        elif name == "TangentOut":
+            current_key_data.tan_out.set_val(val)
+    
+    def remove_selected_keyframe(self):
+        current_tree_node = self.treeParticleBlocks.currentItem()
+        current_tree_data = current_tree_node.data(0, PBNODE_DATA)
+        current_key_node = self.keyframeTree.currentItem()
+        current_key_data = current_key_node.data(0, PBNODE_DATA)
+        index = self.keyframeTree.indexOfTopLevelItem(current_key_node)
+        current_tree_data.keyframes.remove(current_key_data)
+        self.keyframeTree.takeTopLevelItem(index)  
+    
+    def put_keyframe(self, keyframe, select=True):
+        name = "Time " + str(round(keyframe.time.get_val(), 4))
+        node = QtWidgets.QTreeWidgetItem([name])
+        node.setData(0, PBNODE_DATA, keyframe)
+        self.keyframeTree.addTopLevelItem(node)
+        if select:
+            self.keyframeTree.setCurrentItem(node)
+    
+    def add_keyframe(self):
+        current_tree_node = self.treeParticleBlocks.currentItem()
+        current_tree_data = current_tree_node.data(0, PBNODE_DATA)
+        keyframe = jsystem.jpac210.JPAKeyframe()
+        current_tree_data.keyframes.append(keyframe)
+        self.put_keyframe(keyframe)
     
     def get_current_field_block(self):
         current_item = self.treeParticleBlocks.currentItem()
         if current_item.data(0, PBNODE_MODE) == PgpEditorMode.FIELD_BLOCK:
+            return current_item.data(0, PBNODE_DATA)
+        else:
+            return None
+    
+    def get_current_key_block(self):
+        current_item = self.treeParticleBlocks.currentItem()
+        if current_item.data(0, PBNODE_MODE) == PgpEditorMode.KEY_BLOCK:
             return current_item.data(0, PBNODE_DATA)
         else:
             return None
