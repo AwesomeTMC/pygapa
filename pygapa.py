@@ -287,6 +287,20 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.keyLoop.toggled.connect(lambda s: self.get_current_key_block().loop.set_val(s))
         self.keyType.currentIndexChanged.connect(lambda s: self.get_current_key_block().key_type.set_val(s))
 
+        for mode in jsystem.jpac210.IndirectTextureMode:
+            self.indirectTextureMode.addItem(mode.name)
+        self.indirectTextureMode.currentIndexChanged.connect(lambda s: self.current_particle.ex_tex_shape.flags.set_val_flag_name("IndirectTextureMode", s))
+        self.matrixScale.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.matrix_scale.set_val(s))
+        self.indirectTextureIndex.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_index.set_val(s))
+        self.useSecondTextureIndex.toggled.connect(lambda s: self.current_particle.ex_tex_shape.flags.set_val_flag_name("UseSecondTextureIndex", s))
+        self.secondTextureIndex.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.second_texture_index.set_val(s))
+        self.indirectTexMatrix00.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_0_0.set_val(s))
+        self.indirectTexMatrix01.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_0_1.set_val(s))
+        self.indirectTexMatrix02.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_0_2.set_val(s))
+        self.indirectTexMatrix10.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_0.set_val(s))
+        self.indirectTexMatrix11.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_1.set_val(s))
+        self.indirectTexMatrix12.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_2.set_val(s))
+        
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
         self.actionPreferences.triggered.connect(self.preferences.show)
@@ -923,6 +937,20 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.keyType.setCurrentIndex(current_block_data.key_type.get_val())
             for keyframe in current_block_data.keyframes:
                 self.put_keyframe(keyframe, False)
+        elif current_block_type == PgpEditorMode.EX_TEX_SHAPE:
+            self.particleSettingsTabs.setTabVisible(7, True)
+            self.indirectTextureMode.setCurrentIndex(self.current_particle.ex_tex_shape.flags.get_val_flag_name("IndirectTextureMode"))
+            self.matrixScale.setValue(self.current_particle.ex_tex_shape.matrix_scale.get_val())
+            self.indirectTextureIndex.setValue(self.current_particle.ex_tex_shape.indirect_texture_index.get_val())
+            self.useSecondTextureIndex.setChecked(self.current_particle.ex_tex_shape.flags.get_val_flag_name("UseSecondTextureIndex"))
+            self.secondTextureIndex.setValue(self.current_particle.ex_tex_shape.second_texture_index.get_val())
+            self.indirectTexMatrix00.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_0_0.get_val())
+            self.indirectTexMatrix01.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_0_1.get_val())
+            self.indirectTexMatrix02.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_0_2.get_val())
+            self.indirectTexMatrix10.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_1_0.get_val())
+            self.indirectTexMatrix11.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_1_1.get_val())
+            self.indirectTexMatrix12.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_1_2.get_val())
+        
     
     def select_keyframe(self):
         if len(self.keyframeTree.selectedItems()) != 1:
