@@ -758,7 +758,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>574</width>
-                <height>279</height>
+                <height>252</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -825,7 +825,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>8</number>
                  </property>
                  <property name="documentMode">
                   <bool>false</bool>
@@ -2887,6 +2887,572 @@ Rotation</string>
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_7">
+                  <attribute name="title">
+                   <string>General</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_21">
+                   <item row="3" column="4">
+                    <widget class="QDoubleSpinBox" name="childGlobalScale2DY">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="4">
+                    <widget class="QComboBox" name="childPlaneType"/>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QLabel" name="label_49">
+                     <property name="text">
+                      <string>Direction Type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QDoubleSpinBox" name="childGlobalScale2DX">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QSpinBox" name="childTextureIndex">
+                     <property name="specialValueText">
+                      <string/>
+                     </property>
+                     <property name="minimum">
+                      <number>-999999999</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_48">
+                     <property name="text">
+                      <string>Shape Type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_50">
+                     <property name="text">
+                      <string>Rotation Type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="childShapeType"/>
+                   </item>
+                   <item row="4" column="4">
+                    <widget class="QLineEdit" name="childEnvironmentColor">
+                     <property name="inputMask">
+                      <string>HHHHHHHH;0</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>8</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="childRotationType"/>
+                   </item>
+                   <item row="0" column="4">
+                    <widget class="QComboBox" name="childDirectionType"/>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QLabel" name="label_51">
+                     <property name="text">
+                      <string>Plane Type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_52">
+                     <property name="text">
+                      <string>Global Scale 2D X</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="3">
+                    <widget class="QLabel" name="label_53">
+                     <property name="text">
+                      <string>Global Scale 2D Y</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="childScaleOutEnabled">
+                     <property name="text">
+                      <string>Scale Out Enabled?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="3">
+                    <widget class="QLabel" name="label_55">
+                     <property name="text">
+                      <string>Environment Color</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_56">
+                     <property name="text">
+                      <string>Texture Index</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_54">
+                     <property name="text">
+                      <string>Primary Color</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="childFieldEnabled">
+                     <property name="text">
+                      <string>Field Enabled?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="3">
+                    <widget class="QCheckBox" name="childAlphaOutEnabled">
+                     <property name="text">
+                      <string>Alpha Out Enabled?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="4">
+                    <widget class="QCheckBox" name="childRotationEnabled">
+                     <property name="text">
+                      <string>Rotation Enabled?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QLineEdit" name="childPrimaryColor">
+                     <property name="inputMask">
+                      <string>HHHHHHHH;0</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="maxLength">
+                      <number>8</number>
+                     </property>
+                     <property name="placeholderText">
+                      <string/>
+                     </property>
+                     <property name="clearButtonEnabled">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_8">
+                  <attribute name="title">
+                   <string>Inheritance</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_22">
+                   <item row="1" column="2">
+                    <widget class="QDoubleSpinBox" name="childInheritAlpha">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QDoubleSpinBox" name="childInheritScale">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="label_58">
+                     <property name="text">
+                      <string>Inherit Alpha</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="label_57">
+                     <property name="text">
+                      <string>Inherit Scale</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QCheckBox" name="childAlphaInherited">
+                     <property name="text">
+                      <string>Alpha Inherited?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="label_59">
+                     <property name="text">
+                      <string>Inherit RGB</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="childRGBInherited">
+                     <property name="text">
+                      <string>RGB Inherited?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="childScaleInherited">
+                     <property name="text">
+                      <string>Scale Inherited?</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QDoubleSpinBox" name="childInheritRGB">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tab_9">
+                  <attribute name="title">
+                   <string>Time and Motion</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_23">
+                   <item row="0" column="3">
+                    <widget class="QSpinBox" name="childLife">
+                     <property name="minimum">
+                      <number>-999999999</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_63">
+                     <property name="text">
+                      <string>Step</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_61">
+                     <property name="text">
+                      <string>Life</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_64">
+                     <property name="text">
+                      <string>Rotate Speed</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QDoubleSpinBox" name="childTiming">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QSpinBox" name="childRotateSpeed">
+                     <property name="minimum">
+                      <number>-999999999</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="3">
+                    <widget class="QDoubleSpinBox" name="childVelocityInfluenceRate">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_60">
+                     <property name="text">
+                      <string>Timing</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QLabel" name="label_65">
+                     <property name="text">
+                      <string>Velocity Influence Rate</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QSpinBox" name="childStep">
+                     <property name="minimum">
+                      <number>-999999999</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_72">
+                     <property name="text">
+                      <string>Base Velocity</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_62">
+                     <property name="text">
+                      <string>Rate</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QSpinBox" name="childRate">
+                     <property name="minimum">
+                      <number>-999999999</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_73">
+                     <property name="text">
+                      <string>Gravity</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QDoubleSpinBox" name="childBaseVelocity">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QDoubleSpinBox" name="childGravity">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="3">
+                    <widget class="QDoubleSpinBox" name="childPositionRandom">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="3">
+                    <widget class="QDoubleSpinBox" name="childBaseVelocityRandom">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="decimals">
+                      <number>4</number>
+                     </property>
+                     <property name="minimum">
+                      <double>-999999.999900000053458</double>
+                     </property>
+                     <property name="maximum">
+                      <double>999999.999900000053458</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QLabel" name="label_74">
+                     <property name="text">
+                      <string>Base Velocity Random</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QLabel" name="label_75">
+                     <property name="text">
+                      <string>Position Random</string>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>

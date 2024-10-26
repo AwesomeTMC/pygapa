@@ -644,7 +644,7 @@ class JPAChildShape(JPAChunk):
         self.position_random = F32Chunk("PositionRandom")
         self.base_velocity = F32Chunk("BaseVelocity")
         self.base_velocity_random = F32Chunk("BaseVelocityRandom")
-        self.velocity_inf_rate = F32Chunk("VelocityInfRate") #TODO: WTF IS AN INF RATE
+        self.velocity_influence_rate = F32Chunk("VelocityInfluenceRate")
         self.gravity = F32Chunk("Gravity")
         self.global_scale_2d_x = F32Chunk("GlobalScale2DX")
         self.global_scale_2d_y = F32Chunk("GlobalScale2DY")
@@ -663,7 +663,7 @@ class JPAChildShape(JPAChunk):
 
         self.auto_chunks = [
             self.flags, self.position_random, self.base_velocity, self.base_velocity_random,
-            self.velocity_inf_rate, self.gravity, self.global_scale_2d_x, self.global_scale_2d_y,
+            self.velocity_influence_rate, self.gravity, self.global_scale_2d_x, self.global_scale_2d_y,
             self.inherit_scale, self.inherit_alpha, self.inherit_rgb, self.primary_color,
             self.environment_color, self.timing, self.life, self.rate, self.step, 
             self.texture_index, self.rotate_speed

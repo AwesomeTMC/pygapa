@@ -300,7 +300,46 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.indirectTexMatrix10.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_0.set_val(s))
         self.indirectTexMatrix11.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_1.set_val(s))
         self.indirectTexMatrix12.valueChanged.connect(lambda s: self.current_particle.ex_tex_shape.indirect_texture_matrix_1_2.set_val(s))
+
+        for x in jsystem.jpac210.ShapeType:
+            self.childShapeType.addItem(x.name)
+        for x in jsystem.jpac210.RotationType:
+            self.childRotationType.addItem(x.name)
+        for x in jsystem.jpac210.DirectionType:
+            self.childDirectionType.addItem(x.name)
+        for x in jsystem.jpac210.PlaneType:
+            self.childPlaneType.addItem(x.name)
         
+        self.childShapeType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("ShapeType", s))
+        self.childRotationType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("RotationType", s))
+        self.childDirectionType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("DirectionType", s))
+        self.childPlaneType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("PlaneType", s))
+        self.childFieldEnabled.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsEnableField", s))
+        self.childScaleOutEnabled.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsEnableScaleOut", s))
+        self.childAlphaOutEnabled.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsEnableAlphaOut", s))
+        self.childRotationEnabled.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsEnableRotate", s))
+        self.childGlobalScale2DX.valueChanged.connect(lambda s: self.get_current_block_data().global_scale_2d_x.set_val(s))
+        self.childGlobalScale2DY.valueChanged.connect(lambda s: self.get_current_block_data().global_scale_2d_y.set_val(s))
+        self.childPrimaryColor.textChanged.connect(lambda s: self.get_current_block_data().primary_color.set_val(bytes.fromhex(self.childPrimaryColor.displayText())))
+        self.childEnvironmentColor.textChanged.connect(lambda s: self.get_current_block_data().environment_color.set_val(bytes.fromhex(self.childEnvironmentColor.displayText())))
+        self.childTextureIndex.valueChanged.connect(lambda s: self.get_current_block_data().texture_index.set_val(s))
+        self.childScaleInherited.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsInheritedScale", s))
+        self.childInheritScale.valueChanged.connect(lambda s: self.get_current_block_data().inherit_scale.set_val(s))
+        self.childAlphaInherited.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsInheritedAlpha", s))
+        self.childInheritAlpha.valueChanged.connect(lambda s: self.get_current_block_data().inherit_alpha.set_val(s))
+        self.childRGBInherited.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsInheritedRGB", s))
+        self.childInheritRGB.valueChanged.connect(lambda s: self.get_current_block_data().inherit_rgb.set_val(s))
+        self.childTiming.valueChanged.connect(lambda s: self.get_current_block_data().timing.set_val(s))
+        self.childLife.valueChanged.connect(lambda s: self.get_current_block_data().life.set_val(s))
+        self.childRate.valueChanged.connect(lambda s: self.get_current_block_data().rate.set_val(s))
+        self.childStep.valueChanged.connect(lambda s: self.get_current_block_data().step.set_val(s))
+        self.childRotateSpeed.valueChanged.connect(lambda s: self.get_current_block_data().rotate_speed.set_val(s))
+        self.childVelocityInfluenceRate.valueChanged.connect(lambda s: self.get_current_block_data().velocity_influence_rate.set_val(s))
+        self.childBaseVelocity.valueChanged.connect(lambda s: self.get_current_block_data().base_velocity.set_val(s))
+        self.childBaseVelocityRandom.valueChanged.connect(lambda s: self.get_current_block_data().base_velocity_random.set_val(s))
+        self.childGravity.valueChanged.connect(lambda s: self.get_current_block_data().gravity.set_val(s))
+        self.childPositionRandom.valueChanged.connect(lambda s: self.get_current_block_data().position_random.set_val(s))
+
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
         self.actionPreferences.triggered.connect(self.preferences.show)
@@ -937,6 +976,39 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.keyType.setCurrentIndex(current_block_data.key_type.get_val())
             for keyframe in current_block_data.keyframes:
                 self.put_keyframe(keyframe, False)
+        elif current_block_type == PgpEditorMode.CHILD_SHAPE:
+            for i in range(8, 11):
+                self.particleSettingsTabs.setTabVisible(i, True)
+            current_block_data : jsystem.jpac210.JPAChildShape
+            self.childShapeType.setCurrentIndex(current_block_data.flags.get_val_flag_name("ShapeType"))
+            self.childRotationType.setCurrentIndex(current_block_data.flags.get_val_flag_name("RotationType"))
+            self.childDirectionType.setCurrentIndex(current_block_data.flags.get_val_flag_name("DirectionType"))
+            self.childPlaneType.setCurrentIndex(current_block_data.flags.get_val_flag_name("PlaneType"))
+            self.childFieldEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableField"))
+            self.childScaleOutEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableScaleOut"))
+            self.childAlphaOutEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableAlphaOut"))
+            self.childRotationEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableRotate"))
+            self.childGlobalScale2DX.setValue(current_block_data.global_scale_2d_x.get_val())
+            self.childGlobalScale2DY.setValue(current_block_data.global_scale_2d_y.get_val())
+            self.childPrimaryColor.setText(str(current_block_data.primary_color.get_val().hex()))
+            self.childEnvironmentColor.setText(str(current_block_data.environment_color.get_val().hex()))
+            self.childTextureIndex.setValue(current_block_data.texture_index.get_val())
+            self.childScaleInherited.setChecked(current_block_data.flags.get_val_flag_name("IsInheritedScale"))
+            self.childInheritScale.setValue(current_block_data.inherit_scale.get_val())
+            self.childAlphaInherited.setChecked(current_block_data.flags.get_val_flag_name("IsInheritedAlpha"))
+            self.childInheritAlpha.setValue(current_block_data.inherit_alpha.get_val())
+            self.childRGBInherited.setChecked(current_block_data.flags.get_val_flag_name("IsInheritedRGB"))
+            self.childInheritRGB.setValue(current_block_data.inherit_rgb.get_val())
+            self.childTiming.setValue(current_block_data.timing.get_val())
+            self.childLife.setValue(current_block_data.life.get_val())
+            self.childRate.setValue(current_block_data.rate.get_val())
+            self.childStep.setValue(current_block_data.step.get_val())
+            self.childRotateSpeed.setValue(current_block_data.rotate_speed.get_val())
+            self.childVelocityInfluenceRate.setValue(current_block_data.velocity_influence_rate.get_val())
+            self.childBaseVelocity.setValue(current_block_data.base_velocity.get_val())
+            self.childBaseVelocityRandom.setValue(current_block_data.base_velocity_random.get_val())
+            self.childGravity.setValue(current_block_data.gravity.get_val())
+            self.childPositionRandom.setValue(current_block_data.position_random.get_val())
         elif current_block_type == PgpEditorMode.EX_TEX_SHAPE:
             self.particleSettingsTabs.setTabVisible(7, True)
             self.indirectTextureMode.setCurrentIndex(self.current_particle.ex_tex_shape.flags.get_val_flag_name("IndirectTextureMode"))
@@ -1018,6 +1090,10 @@ class PgpEditor(QtWidgets.QMainWindow):
             return current_item.data(0, PBNODE_DATA)
         else:
             return None
+        
+    def get_current_block_data(self):
+        current_item = self.treeParticleBlocks.currentItem()
+        return current_item.data(0, PBNODE_DATA)
 
     def hide_all_particle_settings_tabs(self):
         for i in range(self.particleSettingsTabs.count()):
