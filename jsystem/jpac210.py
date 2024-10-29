@@ -173,8 +173,8 @@ class JPADynamicsBlock(JPAChunk):
 
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD", self.binary_data.hex())
+            print("NEW", binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "BEM1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -246,8 +246,8 @@ class JPAFieldBlock(JPAChunk):
 
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD",self.binary_data.hex())
+            print("NEW",binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "FLD1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -307,8 +307,8 @@ class JPAKeyBlock(JPAChunk):
         self.binary_data[0x2:0x3] = pyaurum.pack_u8(0)
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD",self.binary_data.hex())
+            print("NEW",binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "KFA1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -609,8 +609,8 @@ class JPAExtraShape(JPAChunk):
 
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD",self.binary_data.hex())
+            print("NEW",binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "ESP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -691,8 +691,8 @@ class JPAChildShape(JPAChunk):
 
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD",self.binary_data.hex())
+            print("NEW",binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "SSP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -750,8 +750,8 @@ class JPAExTexShape(JPAChunk):
 
         if (self.binary_data != binary_data or not binary_data):
             print("Packing does not match contents of original file.")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
+            print("OLD",self.binary_data.hex())
+            print("NEW",binary_data.hex())
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "ETX1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
