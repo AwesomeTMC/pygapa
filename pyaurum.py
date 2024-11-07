@@ -521,23 +521,6 @@ def pack_f32(val: int) -> bytes:
 def pack_f64(val: int) -> bytes:
     return F64.pack(val)
 
-def get_color_table(buffer: bytearray, offset: int, count: int) -> list[dict]:
-    new_list = []
-    for i in range(count):
-        obj = dict()
-        current_offset = offset + (i * 0x6)
-        obj["Frame"] = get_u16(buffer, current_offset)
-        obj["Color"] = buffer[current_offset + 0x2: current_offset + 0x6].hex()
-        new_list.append(obj)
-    return new_list
-
-def pack_color_table(color_list: list[dict]) -> bytearray:
-    new_list = bytearray()
-    for obj in color_list:
-        new_list.extend(pack_u16(obj["Frame"]))
-        new_list.extend(bytes.fromhex(obj["Color"]))
-    return new_list
-
 def pack_u8_array(arr: list[int]) -> bytearray:
     new_list = bytearray()
     for num in arr:

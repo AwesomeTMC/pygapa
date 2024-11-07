@@ -376,6 +376,104 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.extraRotationAngleRandom.valueChanged.connect(lambda s: self.get_current_block_data().rotate_angle_random.set_val(s))
         self.extraRotationSpeedRandom.valueChanged.connect(lambda s: self.get_current_block_data().rotate_speed_random.set_val(s))
 
+        self.baseTilingS.addItem("1.0")
+        self.baseTilingS.addItem("2.0")
+        self.baseTilingT.addItem("1.0")
+        self.baseTilingT.addItem("2.0")
+
+        for x in jsystem.jpac210.BlendMode:
+            self.baseBlendMode.addItem(x.name)
+        for x in jsystem.jpac210.BlendFactor:
+            self.baseBlendSourceFactor.addItem(x.name)
+            self.baseBlendDestinationFactor.addItem(x.name)
+        for x in jsystem.jpac210.DirectionType:
+            self.baseDirectionType.addItem(x.name)
+        for x in jsystem.jpac210.RotationType:
+            self.baseRotationType.addItem(x.name)
+        for x in jsystem.jpac210.ShapeType:
+            self.baseShapeType.addItem(x.name)
+        for x in jsystem.jpac210.PlaneType:
+            self.basePlaneType.addItem(x.name)
+        for x in jsystem.jpac210.CompareType:
+            self.baseDepthCompareType.addItem(x.name)
+            self.baseAlphaCompareType0.addItem(x.name)
+            self.baseAlphaCompareType1.addItem(x.name)
+        for x in jsystem.jpac210.AlphaOperator:
+            self.baseAlphaOperator.addItem(x.name)
+        for x in jsystem.jpac210.CalcIndexType:
+            self.baseTextureCalculateIndexType.addItem(x.name)
+            self.baseColorCalculateIndexType.addItem(x.name)
+
+        self.basePrimaryColorTree.itemSelectionChanged.connect(self.select_primary_color_frame)
+        self.basePrimaryColorFrame.valueChanged.connect(lambda s: self.set_color_frame_data("Frame", s, self.basePrimaryColorTree))
+        self.basePrimaryColorColor.textChanged.connect(lambda s: self.set_color_frame_data("Color", bytes.fromhex(self.basePrimaryColorColor.displayText()), self.basePrimaryColorTree))
+        self.basePrimaryColorDelete.clicked.connect(lambda: self.remove_selected_color_frame(self.basePrimaryColorTree))
+        self.basePrimaryColorAdd.clicked.connect(lambda: self.add_color_frame(self.basePrimaryColorTree))
+        self.basePrimaryColorAnimEnabled.toggled.connect(self.set_primary_color_enabled)
+
+        self.baseEnvironmentColorTree.itemSelectionChanged.connect(self.select_environment_color_frame)
+        self.baseEnvironmentColorFrame.valueChanged.connect(lambda s: self.set_color_frame_data("Frame", s, self.baseEnvironmentColorTree))
+        self.baseEnvironmentColorColor.textChanged.connect(lambda s: self.set_color_frame_data("Color", bytes.fromhex(self.baseEnvironmentColorColor.displayText()), self.baseEnvironmentColorTree))
+        self.baseEnvironmentColorDelete.clicked.connect(lambda: self.remove_selected_color_frame(self.baseEnvironmentColorTree))
+        self.baseEnvironmentColorAdd.clicked.connect(lambda: self.add_color_frame(self.baseEnvironmentColorTree))
+        self.baseEnvironmentColorAnimEnabled.toggled.connect(self.set_environment_color_enabled)
+        
+        self.baseTextureIndexData.itemChanged.connect(self.texture_index_changed)
+        self.baseTextureIndexData.itemSelectionChanged.connect(self.selection_changed_texture_animation)
+        self.baseEnableTextureAnimation.toggled.connect(self.enable_texture_animation)
+        self.baseTextureIndexDelete.clicked.connect(self.remove_selected_texture_index)
+        self.baseTextureIndexAdd.clicked.connect(self.add_texture_index)
+
+        self.baseTextureScrollAnimEnabled.toggled.connect(self.enable_texture_scroll_anim)
+        
+        self.baseProjectionEnabled.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsEnableProjection", s))
+        self.baseDrawForwardAhead.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsDrawForwardAhead", s))
+        self.baseDrawPrintAhead.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsDrawPrintAhead", s))
+        self.baseTilingS.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("DoubleTilingS", bool(s)))
+        self.baseTilingT.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("DoubleTilingT", bool(s)))
+        self.baseDontDrawParent.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsNoDrawParent", s))
+        self.baseDontDrawChild.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsNoDrawChild", s))
+        self.baseBaseSizeX.valueChanged.connect(lambda s: self.get_current_block_data().base_size_x.set_val(s))
+        self.baseBaseSizeY.valueChanged.connect(lambda s: self.get_current_block_data().base_size_y.set_val(s))
+        self.baseBlendMode.currentIndexChanged.connect(lambda s: self.get_current_block_data().blend_mode_flags.set_val_flag_name("BlendMode", s))
+        self.baseBlendSourceFactor.currentIndexChanged.connect(lambda s: self.get_current_block_data().blend_mode_flags.set_val_flag_name("SourceFactor", s))
+        self.baseBlendDestinationFactor.currentIndexChanged.connect(lambda s: self.get_current_block_data().blend_mode_flags.set_val_flag_name("DestinationFactor", s))
+        self.baseDepthTest.toggled.connect(lambda s: self.get_current_block_data().z_mode_flags.set_val_flag_name("DepthTest", s))
+        self.baseDepthCompareType.currentIndexChanged.connect(lambda s: self.get_current_block_data().z_mode_flags.set_val_flag_name("DepthCompareType", s))
+        self.baseDepthWrite.toggled.connect(lambda s: self.get_current_block_data().z_mode_flags.set_val_flag_name("DepthWrite", s))
+        self.baseShapeType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("ShapeType", s))
+        self.baseDirectionType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("DirectionType", s))
+        self.baseRotationType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("RotationType", s))
+        self.basePlaneType.currentIndexChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("PlaneType", s))
+        self.baseAlphaCompareType0.currentIndexChanged.connect(lambda s: self.get_current_block_data().alpha_compare_flags.set_val_flag_name("AlphaCompareType0", s))
+        self.baseAlphaCompareType1.currentIndexChanged.connect(lambda s: self.get_current_block_data().alpha_compare_flags.set_val_flag_name("AlphaCompareType1", s))
+        self.baseAlphaOperator.currentIndexChanged.connect(lambda s: self.get_current_block_data().alpha_compare_flags.set_val_flag_name("AlphaOperator", s))
+        self.baseAlphaReference0.valueChanged.connect(lambda s: self.get_current_block_data().alpha_reference_0.set_val(s))
+        self.baseAlphaReference1.valueChanged.connect(lambda s: self.get_current_block_data().alpha_reference_1.set_val(s))
+        self.baseAlphaInSelect.valueChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("AlphaInSelect", s))
+        self.baseGlobalTextureAnimation.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsGlobalTextureAnimation", s))
+        self.baseTextureCalculateIndexType.currentIndexChanged.connect(lambda s: self.get_current_block_data().texture_flags.set_val_flag_name("TexCalcIndexType", s))
+        self.baseTextureIndex.valueChanged.connect(lambda s: self.get_current_block_data().texture_index.set_val(s))
+        self.baseColorCalculateIndexType.currentIndexChanged.connect(lambda s: self.get_current_block_data().color_flags.set_val_flag_name("ColorCalcIndexType", s))
+        self.basePrimaryColor.textChanged.connect(lambda s: self.get_current_block_data().primary_color.set_val(bytes.fromhex(self.basePrimaryColor.displayText())))
+        self.baseEnvironmentColor.textChanged.connect(lambda s: self.get_current_block_data().environment_color.set_val(bytes.fromhex(self.baseEnvironmentColor.displayText())))
+        self.baseColorLoopOffsetMask.valueChanged.connect(lambda s: self.get_current_block_data().color_loop_offset_mask.set_val(s))
+        self.baseColorInSelect.valueChanged.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("ColorInSelect", s))
+        self.baseColorAnimationMaxFrame.valueChanged.connect(lambda s: self.get_current_block_data().color_animation_max_frame.set_val(s))
+        self.baseGlobalColorAnimation.toggled.connect(lambda s: self.get_current_block_data().flags.set_val_flag_name("IsGlobalColorAnimation", s))
+        self.baseAnimationRandom.valueChanged.connect(lambda s: self.get_current_block_data().animation_random.set_val(s))
+        self.baseIndexLoopOffsetMask.valueChanged.connect(lambda s: self.get_current_block_data().texture_index_loop_offset_mask.set_val(s))
+        self.baseInitialTranslationX.valueChanged.connect(lambda s: self.get_current_block_data().tex_init_trans_x.set_val(s))
+        self.baseInitialTranslationY.valueChanged.connect(lambda s: self.get_current_block_data().tex_init_trans_y.set_val(s))
+        self.baseInitialScaleX.valueChanged.connect(lambda s: self.get_current_block_data().tex_init_scale_x.set_val(s))
+        self.baseInitialScaleY.valueChanged.connect(lambda s: self.get_current_block_data().tex_init_scale_y.set_val(s))
+        self.baseInitialRotation.valueChanged.connect(lambda s: self.get_current_block_data().tex_init_rot.set_val(s))
+        self.baseIncrementRotation.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_rot.set_val(s))
+        self.baseIncrementTranslationX.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_trans_x.set_val(s))
+        self.baseIncrementTranslationY.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_trans_y.set_val(s))
+        self.baseIncrementScaleX.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_scale_x.set_val(s))
+        self.baseIncrementScaleY.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_scale_y.set_val(s))
+
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
         self.actionPreferences.triggered.connect(self.preferences.show)
@@ -1012,40 +1110,118 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.keyType.setCurrentIndex(current_block_data.key_type.get_val())
             for keyframe in current_block_data.keyframes:
                 self.put_keyframe(keyframe, False)
-        elif current_block_type == PgpEditorMode.EXTRA_SHAPE:
-            for i in range(11, 16):
+        elif current_block_type == PgpEditorMode.BASE_SHAPE:
+            for i in range(15, 23):
                 self.particleSettingsTabs.setTabVisible(i, True)
-                self.extraIsDiffXY.setChecked(current_block_data.flags.get_val_flag_name("IsDiffXY"))
-                self.extraSinWaveEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableSinWave"))
-                self.extraPivotX.setValue(current_block_data.flags.get_val_flag_name("PivotX"))
-                self.extraPivotY.setValue(current_block_data.flags.get_val_flag_name("PivotY"))
-                self.extraScaleEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableScale"))
-                self.extraScaleInTiming.setValue(current_block_data.scale_in_timing.get_val())
-                self.extraScaleInValueX.setValue(current_block_data.scale_in_value_x.get_val())
-                self.extraScaleInValueY.setValue(current_block_data.scale_in_value_y.get_val())
-                self.extraScaleAnimXMaxFrame.setValue(current_block_data.scale_animation_x_max_frame.get_val())
-                self.extraScaleAnimTypeX.setCurrentIndex(current_block_data.flags.get_val_flag_name("ScaleAnimTypeX"))
-                self.extraScaleOutRandom.setValue(current_block_data.scale_out_random.get_val())
-                self.extraScaleOutTiming.setValue(current_block_data.scale_out_timing.get_val())
-                self.extraScaleOutValueX.setValue(current_block_data.scale_out_value_x.get_val())
-                self.extraScaleOutValueY.setValue(current_block_data.scale_out_value_y.get_val())
-                self.extraScaleAnimYMaxFrame.setValue(current_block_data.scale_animation_y_max_frame.get_val())
-                self.extraScaleAnimTypeY.setCurrentIndex(current_block_data.flags.get_val_flag_name("ScaleAnimTypeY"))
-                self.extraAlphaEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableAlpha"))
-                self.extraAlphaInTiming.setValue(current_block_data.alpha_in_timing.get_val())
-                self.extraAlphaInValue.setValue(current_block_data.alpha_in_value.get_val())
-                self.extraAlphaBaseValue.setValue(current_block_data.alpha_base_value.get_val())
-                self.extraAlphaWaveRandom.setValue(current_block_data.alpha_wave_random.get_val())
-                self.extraAlphaOutTiming.setValue(current_block_data.alpha_out_timing.get_val())
-                self.extraAlphaOutValue.setValue(current_block_data.alpha_out_value.get_val())
-                self.extraAlphaWaveFrequency.setValue(current_block_data.alpha_wave_frequency.get_val())
-                self.extraAlphaWaveAmplitude.setValue(current_block_data.alpha_wave_amplitude.get_val())
-                self.extraRotationEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableRotate"))
-                self.extraRotationAngle.setValue(current_block_data.rotate_angle.get_val())
-                self.extraRotationSpeed.setValue(current_block_data.rotate_speed.get_val())
-                self.extraRotationDirection.setValue(current_block_data.rotate_direction.get_val())
-                self.extraRotationAngleRandom.setValue(current_block_data.rotate_angle_random.get_val())
-                self.extraRotationSpeedRandom.setValue(current_block_data.rotate_speed_random.get_val())
+            current_block_data : jsystem.jpac210.JPABaseShape
+            self.baseProjectionEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableProjection"))
+            self.baseDrawForwardAhead.setChecked(current_block_data.flags.get_val_flag_name("IsDrawForwardAhead"))
+            self.baseDrawPrintAhead.setChecked(current_block_data.flags.get_val_flag_name("IsDrawPrintAhead"))
+            self.baseTilingS.setCurrentIndex(int(current_block_data.flags.get_val_flag_name("DoubleTilingS")))
+            self.baseTilingT.setCurrentIndex(int(current_block_data.flags.get_val_flag_name("DoubleTilingT")))
+            self.baseDontDrawParent.setChecked(current_block_data.flags.get_val_flag_name("IsNoDrawParent"))
+            self.baseDontDrawChild.setChecked(current_block_data.flags.get_val_flag_name("IsNoDrawChild"))
+            self.baseBaseSizeX.setValue(current_block_data.base_size_x.get_val())
+            self.baseBaseSizeY.setValue(current_block_data.base_size_y.get_val())
+            self.baseBlendMode.setCurrentIndex(current_block_data.blend_mode_flags.get_val_flag_name("BlendMode"))
+            self.baseBlendSourceFactor.setCurrentIndex(current_block_data.blend_mode_flags.get_val_flag_name("SourceFactor"))
+            self.baseBlendDestinationFactor.setCurrentIndex(current_block_data.blend_mode_flags.get_val_flag_name("DestinationFactor"))
+            self.baseDepthTest.setChecked(current_block_data.z_mode_flags.get_val_flag_name("DepthTest"))
+            self.baseDepthCompareType.setCurrentIndex(current_block_data.z_mode_flags.get_val_flag_name("DepthCompareType"))
+            self.baseDepthWrite.setChecked(current_block_data.z_mode_flags.get_val_flag_name("DepthWrite"))
+            self.baseShapeType.setCurrentIndex(current_block_data.flags.get_val_flag_name("ShapeType"))
+            self.baseDirectionType.setCurrentIndex(current_block_data.flags.get_val_flag_name("DirectionType"))
+            self.baseRotationType.setCurrentIndex(current_block_data.flags.get_val_flag_name("RotationType"))
+            self.basePlaneType.setCurrentIndex(current_block_data.flags.get_val_flag_name("PlaneType"))
+            self.baseAlphaCompareType0.setCurrentIndex(current_block_data.alpha_compare_flags.get_val_flag_name("AlphaCompareType0"))
+            self.baseAlphaCompareType1.setCurrentIndex(current_block_data.alpha_compare_flags.get_val_flag_name("AlphaCompareType1"))
+            self.baseAlphaOperator.setCurrentIndex(current_block_data.alpha_compare_flags.get_val_flag_name("AlphaOperator"))
+            self.baseAlphaReference0.setValue(current_block_data.alpha_reference_0.get_val())
+            self.baseAlphaReference1.setValue(current_block_data.alpha_reference_1.get_val())
+            self.baseAlphaInSelect.setValue(current_block_data.flags.get_val_flag_name("AlphaInSelect"))
+            self.baseGlobalTextureAnimation.setChecked(current_block_data.flags.get_val_flag_name("IsGlobalTextureAnimation"))
+            self.baseTextureCalculateIndexType.setCurrentIndex(current_block_data.texture_flags.get_val_flag_name("TexCalcIndexType"))
+            self.baseTextureIndex.setValue(current_block_data.texture_index.get_val())
+            is_enabled_tex = current_block_data.texture_flags.get_val_flag_name("IsEnableTexAnim")
+            self.baseEnableTextureAnimation.setChecked(is_enabled_tex)
+            self.baseTextureIndexWidget.setEnabled(is_enabled_tex)
+            self.baseTextureIndexDelete.setEnabled(False)
+            self.baseTextureIndexData.clear()
+            for x in current_block_data.texture_index_anim_data:
+                self.put_texture_index(x, False)
+            self.baseColorCalculateIndexType.setCurrentIndex(current_block_data.color_flags.get_val_flag_name("ColorCalcIndexType"))
+            self.basePrimaryColor.setText(str(current_block_data.primary_color.get_val().hex()))
+            self.baseEnvironmentColor.setText(str(current_block_data.environment_color.get_val().hex()))
+            self.baseColorLoopOffsetMask.setValue(current_block_data.color_loop_offset_mask.get_val())
+            self.baseColorInSelect.setValue(current_block_data.flags.get_val_flag_name("ColorInSelect"))
+            self.baseColorAnimationMaxFrame.setValue(current_block_data.color_animation_max_frame.get_val())
+            self.baseGlobalColorAnimation.setChecked(current_block_data.flags.get_val_flag_name("IsGlobalColorAnimation"))
+            self.baseAnimationRandom.setValue(current_block_data.animation_random.get_val())
+            is_enabled_tex_scroll = current_block_data.flags.get_val_flag_name("IsEnableTexScrollAnim")
+            self.baseTextureScrollAnimEnabled.setChecked(is_enabled_tex_scroll)
+            self.baseTextureScrollAnimWidget.setEnabled(is_enabled_tex_scroll)
+            self.baseIndexLoopOffsetMask.setValue(current_block_data.texture_index_loop_offset_mask.get_val())
+            self.baseInitialTranslationX.setValue(current_block_data.tex_init_trans_x.get_val())
+            self.baseInitialTranslationY.setValue(current_block_data.tex_init_trans_y.get_val())
+            self.baseInitialScaleX.setValue(current_block_data.tex_init_scale_x.get_val())
+            self.baseInitialScaleY.setValue(current_block_data.tex_init_scale_y.get_val())
+            self.baseInitialRotation.setValue(current_block_data.tex_init_rot.get_val())
+            self.baseIncrementRotation.setValue(current_block_data.tex_inc_rot.get_val())
+            self.baseIncrementTranslationX.setValue(current_block_data.tex_inc_trans_x.get_val())
+            self.baseIncrementTranslationY.setValue(current_block_data.tex_inc_trans_y.get_val())
+            self.baseIncrementScaleX.setValue(current_block_data.tex_inc_scale_x.get_val())
+            self.baseIncrementScaleY.setValue(current_block_data.tex_inc_scale_y.get_val())
+            # do primary color anim stuff
+            is_primary_enabled = current_block_data.color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled")
+            self.basePrimaryColorTree.clear()
+            self.basePrimaryColorLeft.setEnabled(is_primary_enabled)
+            self.set_primary_color_frame_enabled(False)
+            for primary_color in current_block_data.primary_color_data:
+                self.put_color_frame(primary_color, self.basePrimaryColorTree, False)
+            self.basePrimaryColorAnimEnabled.setChecked(is_primary_enabled)
+            # do env color anim stuff
+            is_env_enabled = current_block_data.color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled")
+            self.baseEnvironmentColorTree.clear()
+            self.baseEnvironmentColorLeft.setEnabled(is_env_enabled)
+            self.set_environment_color_frame_enabled(False)
+            for color in current_block_data.environment_color_data:
+                self.put_color_frame(color, self.baseEnvironmentColorTree, False)
+            self.baseEnvironmentColorAnimEnabled.setChecked(is_env_enabled)
+
+        elif current_block_type == PgpEditorMode.EXTRA_SHAPE:
+            for i in range(11, 15):
+                self.particleSettingsTabs.setTabVisible(i, True)
+            self.extraIsDiffXY.setChecked(current_block_data.flags.get_val_flag_name("IsDiffXY"))
+            self.extraSinWaveEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableSinWave"))
+            self.extraPivotX.setValue(current_block_data.flags.get_val_flag_name("PivotX"))
+            self.extraPivotY.setValue(current_block_data.flags.get_val_flag_name("PivotY"))
+            self.extraScaleEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableScale"))
+            self.extraScaleInTiming.setValue(current_block_data.scale_in_timing.get_val())
+            self.extraScaleInValueX.setValue(current_block_data.scale_in_value_x.get_val())
+            self.extraScaleInValueY.setValue(current_block_data.scale_in_value_y.get_val())
+            self.extraScaleAnimXMaxFrame.setValue(current_block_data.scale_animation_x_max_frame.get_val())
+            self.extraScaleAnimTypeX.setCurrentIndex(current_block_data.flags.get_val_flag_name("ScaleAnimTypeX"))
+            self.extraScaleOutRandom.setValue(current_block_data.scale_out_random.get_val())
+            self.extraScaleOutTiming.setValue(current_block_data.scale_out_timing.get_val())
+            self.extraScaleOutValueX.setValue(current_block_data.scale_out_value_x.get_val())
+            self.extraScaleOutValueY.setValue(current_block_data.scale_out_value_y.get_val())
+            self.extraScaleAnimYMaxFrame.setValue(current_block_data.scale_animation_y_max_frame.get_val())
+            self.extraScaleAnimTypeY.setCurrentIndex(current_block_data.flags.get_val_flag_name("ScaleAnimTypeY"))
+            self.extraAlphaEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableAlpha"))
+            self.extraAlphaInTiming.setValue(current_block_data.alpha_in_timing.get_val())
+            self.extraAlphaInValue.setValue(current_block_data.alpha_in_value.get_val())
+            self.extraAlphaBaseValue.setValue(current_block_data.alpha_base_value.get_val())
+            self.extraAlphaWaveRandom.setValue(current_block_data.alpha_wave_random.get_val())
+            self.extraAlphaOutTiming.setValue(current_block_data.alpha_out_timing.get_val())
+            self.extraAlphaOutValue.setValue(current_block_data.alpha_out_value.get_val())
+            self.extraAlphaWaveFrequency.setValue(current_block_data.alpha_wave_frequency.get_val())
+            self.extraAlphaWaveAmplitude.setValue(current_block_data.alpha_wave_amplitude.get_val())
+            self.extraRotationEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableRotate"))
+            self.extraRotationAngle.setValue(current_block_data.rotate_angle.get_val())
+            self.extraRotationSpeed.setValue(current_block_data.rotate_speed.get_val())
+            self.extraRotationDirection.setValue(current_block_data.rotate_direction.get_val())
+            self.extraRotationAngleRandom.setValue(current_block_data.rotate_angle_random.get_val())
+            self.extraRotationSpeedRandom.setValue(current_block_data.rotate_speed_random.get_val())
                 
         elif current_block_type == PgpEditorMode.CHILD_SHAPE:
             for i in range(8, 11):
@@ -1093,6 +1269,45 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.indirectTexMatrix11.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_1_1.get_val())
             self.indirectTexMatrix12.setValue(self.current_particle.ex_tex_shape.indirect_texture_matrix_1_2.get_val())
         
+    def texture_index_changed(self, item):
+        i = self.baseTextureIndexData.indexOfTopLevelItem(item)
+        try:
+            self.get_current_block_data().texture_index_anim_data[i] = int(item.text(0))
+        except ValueError:
+            item.setText(0, "0")
+    
+    def enable_texture_animation(self, val):
+        self.get_current_block_data().texture_flags.set_val_flag_name("IsEnableTexAnim", val)
+        self.baseTextureIndexWidget.setEnabled(val)
+
+    def selection_changed_texture_animation(self):
+        if len(self.baseTextureIndexData.selectedItems()) != 1:
+            self.baseTextureIndexDelete.setEnabled(False)
+            return
+        self.baseTextureIndexDelete.setEnabled(True)
+    
+    def remove_selected_texture_index(self):
+        current_node = self.baseTextureIndexData.currentItem()
+        index = self.baseTextureIndexData.indexOfTopLevelItem(current_node)
+        del self.get_current_block_data().texture_index_anim_data[index]
+        self.baseTextureIndexData.takeTopLevelItem(index)  
+
+    def put_texture_index(self, x, select=True):
+        node = QtWidgets.QTreeWidgetItem([str(x)])
+        node.setFlags(node.flags() | QtCore.Qt.ItemFlag.ItemIsEditable)
+        node.setData(0, PBNODE_DATA, x)
+        self.baseTextureIndexData.addTopLevelItem(node)
+        if select:
+            self.baseTextureIndexData.setCurrentItem(node)
+
+    def add_texture_index(self):
+        self.put_texture_index(0)
+        self.get_current_block_data().texture_index_anim_data.append(0)
+
+    def enable_texture_scroll_anim(self, val):
+        self.get_current_block_data().flags.set_val_flag_name("IsEnableTexScrollAnim", val)
+        self.baseTextureScrollAnimEnabled.setChecked(val)
+        self.baseTextureScrollAnimWidget.setEnabled(val)
     
     def select_keyframe(self):
         if len(self.keyframeTree.selectedItems()) != 1:
@@ -1146,6 +1361,100 @@ class PgpEditor(QtWidgets.QMainWindow):
         keyframe = jsystem.jpac210.JPAKeyframe()
         current_tree_data.keyframes.append(keyframe)
         self.put_keyframe(keyframe)
+    
+    def get_color_tree_data(self, tree):
+        current_tree_node = self.treeParticleBlocks.currentItem()
+        current_tree_data = current_tree_node.data(0, PBNODE_DATA) 
+        current_tree_data : jsystem.jpac210.JPABaseShape
+        if tree == self.basePrimaryColorTree:
+            return current_tree_data.primary_color_data
+        elif tree == self.baseEnvironmentColorTree:
+            return current_tree_data.environment_color_data
+
+    def remove_selected_color_frame(self, tree):
+        current_key_node = tree.currentItem()
+        current_key_data = current_key_node.data(0, PBNODE_DATA)
+        index = tree.indexOfTopLevelItem(current_key_node)
+        self.get_color_tree_data(tree).remove(current_key_data)
+        tree.takeTopLevelItem(index)  
+    
+    def put_color_frame(self, frame, tree, select=True):
+        name = "Frame " + str(round(frame.frame.get_val(), 4))
+        node = QtWidgets.QTreeWidgetItem([name])
+        node.setData(0, PBNODE_DATA, frame)
+        tree.addTopLevelItem(node)
+        if select:
+            tree.setCurrentItem(node)
+    
+    def add_color_frame(self, tree):
+        frame = jsystem.jpac210.JPAColorFrame()
+        self.get_color_tree_data(tree).append(frame)
+        self.put_color_frame(frame, tree)
+
+    def set_color_frame_data(self, name, val, tree):
+        current_frame_node = tree.currentItem()
+        current_frame_data = current_frame_node.data(0, PBNODE_DATA)
+        if name == "Frame":
+            current_frame_node.setText(0, "Frame " + str(round(val, 4)))
+            current_frame_data.frame.set_val(val)
+        elif name == "Color":
+            current_frame_data.color.set_val(val)
+
+    def set_primary_color_frame_enabled(self, enabled):
+        self.basePrimaryColorDelete.setEnabled(enabled)
+        self.basePrimaryColorRight.setEnabled(enabled)
+    
+    def set_primary_color_enabled(self, val):
+        if len(self.basePrimaryColorTree.selectedItems()) == 1 and val == True:
+            self.basePrimaryColorRight.setEnabled(True)
+        else:
+            self.basePrimaryColorRight.setEnabled(False)
+        self.basePrimaryColorLeft.setEnabled(val)
+        self.get_current_block_data().color_flags.set_val_flag_name("IsPrimaryColorAnimEnabled", val)
+
+    def select_primary_color_frame(self):
+        if len(self.basePrimaryColorTree.selectedItems()) != 1:
+            self.set_primary_color_frame_enabled(False)
+            return
+        
+        current_key_node = self.basePrimaryColorTree.currentItem()
+        if not current_key_node:
+            return
+        current_frame_data = current_key_node.data(0, PBNODE_DATA)
+        if self.get_current_block_data().color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled") == False:
+            self.set_primary_color_frame_enabled(False)
+            return
+        self.set_primary_color_frame_enabled(True)
+        self.basePrimaryColorFrame.setValue(current_frame_data.frame.get_val())
+        self.basePrimaryColorColor.setText(str(current_frame_data.color.get_val().hex()))
+    
+    def set_environment_color_frame_enabled(self, enabled):
+        self.baseEnvironmentColorDelete.setEnabled(enabled)
+        self.baseEnvironmentColorRight.setEnabled(enabled)
+    
+    def set_environment_color_enabled(self, val):
+        if len(self.baseEnvironmentColorTree.selectedItems()) == 1 and val == True:
+            self.baseEnvironmentColorRight.setEnabled(True)
+        else:
+            self.baseEnvironmentColorRight.setEnabled(False)
+        self.baseEnvironmentColorLeft.setEnabled(val)
+        self.get_current_block_data().color_flags.set_val_flag_name("IsEnvironmentColorAnimEnabled", val)
+
+    def select_environment_color_frame(self):
+        if len(self.baseEnvironmentColorTree.selectedItems()) != 1:
+            self.set_environment_color_frame_enabled(False)
+            return
+        
+        current_key_node = self.baseEnvironmentColorTree.currentItem()
+        if not current_key_node:
+            return
+        current_frame_data = current_key_node.data(0, PBNODE_DATA)
+        if self.get_current_block_data().color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled") == False:
+            self.set_environment_color_frame_enabled(False)
+            return
+        self.set_environment_color_frame_enabled(True)
+        self.baseEnvironmentColorFrame.setValue(current_frame_data.frame.get_val())
+        self.baseEnvironmentColorColor.setText(str(current_frame_data.color.get_val().hex()))
     
     def get_current_field_block(self):
         current_item = self.treeParticleBlocks.currentItem()

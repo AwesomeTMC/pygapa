@@ -95,6 +95,27 @@ class JPAKeyframe(JPAChunk):
         self.tan_out.pack_json(obj)
         return obj
 
+class JPAColorFrame(JPAChunk):
+    def __init__(self):
+        self.frame = U16Chunk("Frame", 0)
+        self.color = U32ChunkBytes("Color", bytes())
+    def unpack(self, buffer, offset: int = 0):
+        self.frame.unpack(buffer, offset)
+        self.color.unpack(buffer, offset + 0x2)
+    def unpack_json(self, entry):
+        self.frame.unpack_json(entry)
+        self.color.unpack_json(entry)
+    def pack(self) -> bytes:
+        binary_data = bytearray()
+        binary_data += self.frame.pack()
+        binary_data += self.color.pack()
+        return binary_data
+    def pack_json(self):
+        obj = dict()
+        self.frame.pack_json(obj)
+        self.color.pack_json(obj)
+        return obj
+
 class JPADynamicsBlock(JPAChunk):
     def __init__(self):
         self.binary_data = None
@@ -433,34 +454,48 @@ class JPABaseShape(JPAChunk):
         texture_index_anim_count = pyaurum.get_u8(buffer, offset + 0x1F)
         primary_color_animation_data_count = pyaurum.get_u8(buffer, offset + 0x22)
         environment_color_animation_data_count = pyaurum.get_u8(buffer, offset + 0x23)
-        
         extra_data_offset = offset + 0x34
 
 
         if (bool((self.flags.get_val() >> 24) & 0x01)):
             extra_data_offset += 0x28
 
-        self.is_enable_tex_anim = bool((self.texture_flags.get_val() >> 0) & 0x01)  
         self.texture_index_anim_data = []
-        if self.is_enable_tex_anim:
+        if self.texture_flags.get_val_flag_name("IsEnableTexAnim"):
             self.texture_index_anim_data = pyaurum.get_u8_array(buffer, extra_data_offset, texture_index_anim_count)
 
-        self.isColorPrmAnm = bool((self.color_flags.get_val() >> 1) & 0x01)
         self.primary_color_data = []
-        if (self.isColorPrmAnm):
-            self.primary_color_data = pyaurum.get_color_table(buffer, initial_offset + primary_color_data_offset, primary_color_animation_data_count)
-        self.isColorEnvAnm = bool((self.color_flags.get_val() >> 3) & 0x01)
+        if (self.color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled")):
+            primary_color_data_offset += initial_offset
+            for i in range(primary_color_animation_data_count):
+                frame = JPAColorFrame()
+                current_offset = primary_color_data_offset + (i * 0x6)
+                frame.unpack(buffer, current_offset)
+                self.primary_color_data.append(frame)
         self.environment_color_data = []
-        if (self.isColorEnvAnm):
-            self.environment_color_data = pyaurum.get_color_table(buffer, initial_offset + environment_color_data_offset, environment_color_animation_data_count)
+        if (self.color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled")):
+            environment_color_data_offset += initial_offset
+            for i in range(environment_color_animation_data_count):
+                frame = JPAColorFrame()
+                current_offset = environment_color_data_offset + (i * 0x6)
+                frame.unpack(buffer, current_offset)
+                self.environment_color_data.append(frame)
 
     def unpack_json(self, entry):
         for var in self.auto_handle_vars:
             var.unpack_json(entry)
         self.binary_data = bytes.fromhex(entry["HexRef-DONOTEDIT"])
         self.texture_index_anim_data = entry["TextureIndexAnimData"]
-        self.primary_color_data = entry["PrimaryColorKeyframes"]
-        self.environment_color_data = entry["EnvironmentColorKeyframes"]
+        self.primary_color_data = []
+        for primary_key in entry["PrimaryColorKeyframes"]:
+            primary_color = JPAColorFrame()
+            primary_color.unpack_json(primary_key)
+            self.primary_color_data.append(primary_color)
+        self.environment_color_data = []
+        for env_key in entry["EnvironmentColorKeyframes"]:
+            environment_color = JPAColorFrame()
+            environment_color.unpack_json(env_key)
+            self.environment_color_data.append(environment_color)
 
     def pack(self) -> bytes:
         binary_data = bytearray()
@@ -499,17 +534,19 @@ class JPABaseShape(JPAChunk):
             extra_data += self.tex_inc_scale_x.pack()
             extra_data += self.tex_inc_scale_y.pack()
             extra_data += self.tex_inc_rot.pack()
-        if ((self.texture_flags.get_val() >> 0) & 0x01):
+        if self.texture_flags.get_val_flag_name("IsEnableTexAnim"):
             extra_data += pyaurum.pack_u8_array(self.texture_index_anim_data)
             extra_data += pyaurum.align4(extra_data)
-        if (self.color_flags.get_val() >> 1) & 0x01:
+        if (self.color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled")):
             offs = len(extra_data) + 0x34
-            extra_data += pyaurum.pack_color_table(self.primary_color_data)
+            for primary_color in self.primary_color_data:
+                extra_data += primary_color.pack()
             extra_data += pyaurum.align4(extra_data)
             binary_data[0x4:0x6] = pyaurum.pack_u16(offs)
-        if (self.color_flags.get_val() >> 3) & 0x01:
+        if (self.color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled")):
             offs = len(extra_data) + 0x34
-            extra_data += pyaurum.pack_color_table(self.environment_color_data)
+            for environment_color in self.environment_color_data:
+                extra_data += environment_color.pack()
             extra_data += pyaurum.align4(extra_data)
             binary_data[0x6:0x8] = pyaurum.pack_u16(offs)
 
@@ -531,10 +568,20 @@ class JPABaseShape(JPAChunk):
             var.pack_json(obj)
         obj["HexRef-DONOTEDIT"] = self.binary_data.hex()
         obj["ExtraDataRef-DONOTEDIT"] = self.extra_data.hex()
-        obj["TextureIndexAnimData"] = self.texture_index_anim_data
-        obj["PrimaryColorKeyframes"] = self.primary_color_data
-        obj["EnvironmentColorKeyframes"] = self.environment_color_data
-
+        if self.texture_flags.get_val_flag_name("IsEnableTexAnim"):
+            obj["TextureIndexAnimData"] = self.texture_index_anim_data
+        else:
+            obj["TextureIndexAnimData"] = []
+        primary_color_keys = []
+        if (self.color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled")):
+            for primary_color in self.primary_color_data:
+                primary_color_keys.append(primary_color.pack_json())
+        environment_color_keys = []
+        if (self.color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled")):
+            for environment_color in self.environment_color_data:
+                environment_color_keys.append(environment_color.pack_json())
+        obj["EnvironmentColorKeyframes"] = environment_color_keys
+        obj["PrimaryColorKeyframes"] = primary_color_keys
         return obj
 
 
