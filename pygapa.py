@@ -227,6 +227,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.lifetimeRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.lifetime_random.set_val(s))
         self.maxFrame.valueChanged.connect(lambda s: self.current_particle.dynamics_block.max_frame.set_val(s))
         self.rateRandom.valueChanged.connect(lambda s: self.current_particle.dynamics_block.rate_random.set_val(s))
+        self.divisionNumber.valueChanged.connect(lambda s: self.current_particle.dynamics_block.division_number.set_val(s))
         
         for volume_type in jsystem.jpac210.VolumeType:
             self.volumeType.addItem(volume_type.name)
@@ -1077,6 +1078,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.fixedDensity.setChecked(current_block_data.flags.get_val_flag_name("FixedDensity"))
             self.fixedInterval.setChecked(current_block_data.flags.get_val_flag_name("FixedInterval"))
             self.inheritScale.setChecked(current_block_data.flags.get_val_flag_name("InheritScale"))
+            self.divisionNumber.setValue(current_block_data.division_number.get_val())
         elif current_block_type == PgpEditorMode.FIELD_BLOCK:
             for i in range(4, 6):
                 # 4, 5: Field Block

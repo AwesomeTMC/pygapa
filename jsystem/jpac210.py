@@ -517,7 +517,6 @@ class JPABaseShape(JPAStandardChunk): # TODO maybe change pack
 class JPAExtraShape(JPAStandardChunk):
     def __init__(self):
         super().__init__("ESP1")
-        self.binary_data = None
         # Unknown set flags: 2, 3
         self.flags = Flag32Chunk("ExtraShapeFlags")
         self.flags.assign_flag("IsEnableScale", 0, 0x1, bool) # 0
