@@ -38,6 +38,13 @@ class U8Chunk(TypedChunk):
         return pyaurum.pack_u8(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
+    def set_val(self, new_val):
+        if (self.val > 255):
+            self.val = 255
+        elif (self.val < 0):
+            self.val = 0
+        else:
+            self.val = new_val
 
 class S8Chunk(TypedChunk):
     def __init__(self, name, default_val=0):
@@ -49,6 +56,13 @@ class S8Chunk(TypedChunk):
         return pyaurum.pack_s8(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
+    def set_val(self, new_val):
+        if (self.val > 127):
+            self.val = 127
+        elif (self.val < -127):
+            self.val = -127
+        else:
+            self.val = new_val
         
 
 class U16Chunk(TypedChunk):
@@ -61,6 +75,13 @@ class U16Chunk(TypedChunk):
         return pyaurum.pack_u16(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
+    def set_val(self, new_val):
+        if (self.val > 65535):
+            self.val = 65535
+        elif (self.val < 0):
+            self.val = 0
+        else:
+            self.val = new_val
         
 
 class U32Chunk(TypedChunk):
@@ -73,6 +94,13 @@ class U32Chunk(TypedChunk):
         return pyaurum.pack_u32(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
+    def set_val(self, new_val):
+        if (self.val > 4294967295):
+            self.val = 4294967295
+        elif (self.val < 0):
+            self.val = 0
+        else:
+            self.val = new_val
         
 
 class U32ChunkBytes(TypedChunk):

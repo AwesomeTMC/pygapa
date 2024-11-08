@@ -524,5 +524,9 @@ def pack_f64(val: int) -> bytes:
 def pack_u8_array(arr: list[int]) -> bytearray:
     new_list = bytearray()
     for num in arr:
+        if num > 255:
+            num = 255
+        elif num < 0:
+            num = 0
         new_list.extend(pack_u8(num))
     return new_list

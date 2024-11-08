@@ -1034,14 +1034,14 @@ class PgpEditor(QtWidgets.QMainWindow):
         current_block_type = current_block_node.data(0, PBNODE_MODE)
         current_block_data = current_block_node.data(0, PBNODE_DATA)
         print(current_block_node.data(0, PBNODE_MODE))
-        self.particleSettingsTabs.setTabVisible(6, True)
+        self.show_particle_settings_tab(6)
         self.keySettings.setEnabled(False)
         self.keyRemove.setEnabled(False)
         self.hide_all_particle_settings_tabs()
         if current_block_type == PgpEditorMode.DYNAMICS_BLOCK:
             # 0-3: Emitter Tabs
             for i in range(4):
-                self.particleSettingsTabs.setTabVisible(i, True)
+                self.show_particle_settings_tab(i)
             self.emitterTranslationX.setValue(current_block_data.emitter_translation_x.get_val())
             self.emitterTranslationY.setValue(current_block_data.emitter_translation_y.get_val())
             self.emitterTranslationZ.setValue(current_block_data.emitter_translation_z.get_val())
@@ -1082,7 +1082,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         elif current_block_type == PgpEditorMode.FIELD_BLOCK:
             for i in range(4, 6):
                 # 4, 5: Field Block
-                self.particleSettingsTabs.setTabVisible(i, True)
+                self.show_particle_settings_tab(i)
             self.fieldType.setCurrentIndex(current_block_data.flags.get_val_flag_name("FieldType"))
             self.velocityType.setCurrentIndex(current_block_data.flags.get_val_flag_name("VelocityType"))
             self.noInheritRotate.setChecked(current_block_data.flags.get_val_flag_name("NoInheritRotate"))
@@ -1107,14 +1107,14 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.cycle.setValue(current_block_data.cycle.get_val())
         elif current_block_type == PgpEditorMode.KEY_BLOCK:
             self.keyframeTree.clear()
-            self.particleSettingsTabs.setTabVisible(6, True)
+            self.show_particle_settings_tab(6)
             self.keyLoop.setChecked(current_block_data.loop.get_val())
             self.keyType.setCurrentIndex(current_block_data.key_type.get_val())
             for keyframe in current_block_data.keyframes:
                 self.put_keyframe(keyframe, False)
         elif current_block_type == PgpEditorMode.BASE_SHAPE:
             for i in range(15, 23):
-                self.particleSettingsTabs.setTabVisible(i, True)
+                self.show_particle_settings_tab(i)
             current_block_data : jsystem.jpac210.JPABaseShape
             self.baseProjectionEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableProjection"))
             self.baseDrawForwardAhead.setChecked(current_block_data.flags.get_val_flag_name("IsDrawForwardAhead"))
@@ -1192,7 +1192,7 @@ class PgpEditor(QtWidgets.QMainWindow):
 
         elif current_block_type == PgpEditorMode.EXTRA_SHAPE:
             for i in range(11, 15):
-                self.particleSettingsTabs.setTabVisible(i, True)
+                self.show_particle_settings_tab(i)
             self.extraIsDiffXY.setChecked(current_block_data.flags.get_val_flag_name("IsDiffXY"))
             self.extraSinWaveEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableSinWave"))
             self.extraPivotX.setValue(current_block_data.flags.get_val_flag_name("PivotX"))
@@ -1227,7 +1227,7 @@ class PgpEditor(QtWidgets.QMainWindow):
                 
         elif current_block_type == PgpEditorMode.CHILD_SHAPE:
             for i in range(8, 11):
-                self.particleSettingsTabs.setTabVisible(i, True)
+                self.show_particle_settings_tab(i)
             self.childShapeType.setCurrentIndex(current_block_data.flags.get_val_flag_name("ShapeType"))
             self.childRotationType.setCurrentIndex(current_block_data.flags.get_val_flag_name("RotationType"))
             self.childDirectionType.setCurrentIndex(current_block_data.flags.get_val_flag_name("DirectionType"))
@@ -1258,7 +1258,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.childGravity.setValue(current_block_data.gravity.get_val())
             self.childPositionRandom.setValue(current_block_data.position_random.get_val())
         elif current_block_type == PgpEditorMode.EX_TEX_SHAPE:
-            self.particleSettingsTabs.setTabVisible(7, True)
+            self.show_particle_settings_tab(7)
             self.indirectTextureMode.setCurrentIndex(self.current_particle.ex_tex_shape.flags.get_val_flag_name("IndirectTextureMode"))
             self.matrixScale.setValue(self.current_particle.ex_tex_shape.matrix_scale.get_val())
             self.indirectTextureIndex.setValue(self.current_particle.ex_tex_shape.indirect_texture_index.get_val())
@@ -1274,7 +1274,14 @@ class PgpEditor(QtWidgets.QMainWindow):
     def texture_index_changed(self, item):
         i = self.baseTextureIndexData.indexOfTopLevelItem(item)
         try:
-            self.get_current_block_data().texture_index_anim_data[i] = int(item.text(0))
+            value = int(item.text(0))
+            if value > 255:
+                value = 255
+                item.setText(0, "255")
+            elif value < 0:
+                value = 0
+                item.setText(0, "0")
+            self.get_current_block_data().texture_index_anim_data[i] = value
         except ValueError:
             item.setText(0, "0")
     
@@ -1479,6 +1486,11 @@ class PgpEditor(QtWidgets.QMainWindow):
     def hide_all_particle_settings_tabs(self):
         for i in range(self.particleSettingsTabs.count()):
             self.particleSettingsTabs.setTabVisible(i, False)
+            self.particleSettingsTabs.setTabEnabled(i, False)
+    
+    def show_particle_settings_tab(self, index):
+        self.particleSettingsTabs.setTabVisible(index, True)
+        self.particleSettingsTabs.setTabEnabled(index, True)
 
     def add_particle(self):
         if self.get_editor_mode() != PgpEditorMode.PARTICLE:
