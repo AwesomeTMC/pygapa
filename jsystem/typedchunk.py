@@ -29,87 +29,95 @@ class TypedChunk():
         self.val = new_val
     
 class U8Chunk(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 1
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_u8(buffer, offset)
-        self.size = 1
     def pack(self) -> bytes:
         return pyaurum.pack_u8(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
-        self.size = 1
 
 class S8Chunk(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 1
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_s8(buffer, offset)
-        self.size = 1
     def pack(self) -> bytes:
         return pyaurum.pack_s8(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
-        self.size = 1
         
 
 class U16Chunk(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 2
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_u16(buffer, offset)
-        self.size = 2
     def pack(self) -> bytes:
         return pyaurum.pack_u16(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
-        self.size = 2
         
 
 class U32Chunk(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 4
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_u32(buffer, offset)
-        self.size = 4
     def pack(self) -> bytes:
         return pyaurum.pack_u32(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
-        self.size = 4
         
 
 class U32ChunkBytes(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 4
     def unpack(self, buffer, offset: int = 0):
         self.val = buffer[offset:offset + 4]
-        self.size = 4
     def pack(self) -> bytes:
         return self.val
     def pack_json(self, obj: dict):
         obj[self.name] = self.val.hex()
     def unpack_json(self, entry):
         self.val = bytes.fromhex(entry[self.name])
-        self.size = 4
         
 
 class F32Chunk(TypedChunk):
+    def __init__(self, name, default_val=0):
+        super().__init__(name, default_val)
+        self.size = 4
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_f32(buffer, offset)
-        self.size = 4
     def pack(self) -> bytes:
         return pyaurum.pack_f32(self.val)
     def unpack_json(self, entry):
         self.val = entry[self.name]
-        self.size = 4
         
 class BoolChunk(TypedChunk):
+    def __init__(self, name, default_val=False):
+        super().__init__(name, default_val)
+        self.size = 1
     def unpack(self, buffer, offset: int = 0):
         self.val = pyaurum.get_bool(buffer, offset)
-        self.size = 1
     def pack(self) -> bytes:
         ret = pyaurum.pack_bool(self.val)
         return ret
     def unpack_json(self, entry):
-        self.val = entry[self.name]
-        self.size = 1
+        self.val = entry[self.name] 
 
 # offsets are necessary for the dynamic way chunks are unpacked and repacked
 class Offset(TypedChunk):
     def __init__(self, size):
         self.size = size
         self.val = None
+        self.name = "Offset"
     def pack(self):
         return bytes('\0' * self.size, "ascii")
     def unpack(self, buffer, offset):
@@ -140,7 +148,9 @@ class ConditionalChunk(TypedChunk):
     def is_condition_met(self) -> bool:
         return True
     def get_size(self):
-        return self.chunk.get_size()
+        if (self.is_condition_met()):
+            return self.chunk.get_size()
+        return 0
     def get_val(self):
         return self.chunk.get_val()
     def set_val(self, new_val):

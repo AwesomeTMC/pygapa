@@ -825,7 +825,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>0</number>
                  </property>
                  <property name="documentMode">
                   <bool>false</bool>
@@ -1064,31 +1064,6 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="2">
-                      <widget class="QDoubleSpinBox" name="emitterRotationX">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="suffix">
-                        <string>°</string>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="0" column="6">
                       <widget class="QDoubleSpinBox" name="emitterTranslationZ">
                        <property name="sizePolicy">
@@ -1241,31 +1216,6 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="6">
-                      <widget class="QDoubleSpinBox" name="emitterRotationZ">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="suffix">
-                        <string>°</string>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="0" column="5">
                       <widget class="QLabel" name="label_5">
                        <property name="text">
@@ -1273,31 +1223,6 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="4">
-                      <widget class="QDoubleSpinBox" name="emitterRotationY">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="suffix">
-                        <string>°</string>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
                        </property>
                       </widget>
                      </item>
@@ -1333,6 +1258,45 @@
                        </property>
                        <property name="maximum">
                         <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="4">
+                      <widget class="QSpinBox" name="emitterRotationY">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="suffix">
+                        <string>°</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="6">
+                      <widget class="QSpinBox" name="emitterRotationZ">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="suffix">
+                        <string>°</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="2">
+                      <widget class="QSpinBox" name="emitterRotationX">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="suffix">
+                        <string>°</string>
                        </property>
                       </widget>
                      </item>

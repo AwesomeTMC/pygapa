@@ -2,6 +2,7 @@
 # pygapa
 ![Pygapa screenshot](screenshot.png)
 This is an unofficial fork of [pygapa](https://github.com/SunakazeKun/pygapa) that aims to add JPAC2-10 editing.
+## IT IS STILL IN DEVELOPMENT SO THERE MAY BE BUGS
 
 # Requirements
 Before you can use this tool, make sure you have installed and prepared the following programs and software:

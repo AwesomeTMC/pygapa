@@ -50,19 +50,75 @@ class JPATexture:
         self.file_name = other.file_name
         self.bti_data = other.bti_data[:]
 
-
+# Barebones chunk that will auto unpack and repack to json and bytes.
 class JPAChunk:
+    def __init__(self):
+        self.auto_chunks = [] # Put a chunk in here to auto unpack, repack, etc.
     def unpack(self, buffer, offset: int = 0):
-        pass
-
+        for var in self.auto_chunks:
+            var.unpack(buffer, offset)
+            offset += var.get_size()
     def unpack_json(self, entry):
-        pass
-
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
     def pack(self) -> bytes:
-        pass
-
+        binary_data = bytearray()
+        for var in self.auto_chunks:
+            binary_data += var.pack()
+        return binary_data
     def pack_json(self):
-        pass
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+        return obj
+    
+# Standard chunk with a size, a magic, and debug info
+class JPAStandardChunk:
+    def __init__(self, magic):
+        super().__init__()
+        self.magic = magic
+    def unpack(self, buffer, offset: int = 0):
+        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
+        offset += 0x8
+        self.binary_data = buffer[offset:offset + size]
+        JPAChunk.unpack(self, buffer, offset)
+    def unpack_json(self, entry):
+        self.binary_data = bytes.fromhex(entry["BinaryDataDONOTEDIT"])
+        for var in self.auto_chunks:
+            var.unpack_json(entry)
+    def pack(self) -> bytes:
+        binary_data = JPAChunk.pack(self)
+        self.identify_changes(binary_data)
+        self.binary_data = binary_data
+        out_data = binary_data + pyaurum.align4(binary_data)
+        return self.magic.encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
+    def pack_json(self):
+        obj = dict()
+        for var in self.auto_chunks:
+            var.pack_json(obj)
+        obj["BinaryDataDONOTEDIT"] = self.binary_data.hex()
+        return obj
+    
+    def identify_changes(self, binary_data):
+        if (self.binary_data != binary_data or not binary_data):
+            print(type(self).__name__, "identified changes:")
+            offset = 0
+            for x in self.auto_chunks:
+                y = deepcopy(x)
+                y.unpack(self.binary_data, offset)
+                new_obj = dict()
+                x.pack_json(new_obj)
+                old_obj = dict()
+                y.pack_json(old_obj)
+                size = x.get_size()
+                old_bin = self.binary_data[offset:offset + size]
+                new_bin = binary_data[offset:offset + size]
+                if (new_bin != old_bin):
+                    print(old_obj, "->", new_obj)
+                    #print(old_bin, "->", new_bin, "size:", size)
+                offset += size
+            print("OLD", self.binary_data.hex())
+            print("NEW", binary_data.hex())
 
 class JPAKeyframe(JPAChunk):
     def __init__(self):
@@ -70,55 +126,17 @@ class JPAKeyframe(JPAChunk):
         self.value = F32Chunk("Value", 0.0)
         self.tan_in = F32Chunk("TangentIn", 0.0)
         self.tan_out = F32Chunk("TangentOut", 0.0)
-    def unpack(self, buffer, offset: int = 0):
-        self.time.unpack(buffer, offset)
-        self.value.unpack(buffer, offset + 0x4)
-        self.tan_in.unpack(buffer, offset + 0x8)
-        self.tan_out.unpack(buffer, offset + 0xC)
-    def unpack_json(self, entry):
-        self.time.unpack_json(entry)
-        self.value.unpack_json(entry)
-        self.tan_in.unpack_json(entry)
-        self.tan_out.unpack_json(entry)
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        binary_data += self.time.pack()
-        binary_data += self.value.pack()
-        binary_data += self.tan_in.pack()
-        binary_data += self.tan_out.pack()
-        return binary_data
-    def pack_json(self):
-        obj = dict()
-        self.time.pack_json(obj)
-        self.value.pack_json(obj)
-        self.tan_in.pack_json(obj)
-        self.tan_out.pack_json(obj)
-        return obj
+        self.auto_chunks = [self.time, self.value, self.tan_in, self.tan_out]
 
 class JPAColorFrame(JPAChunk):
     def __init__(self):
         self.frame = U16Chunk("Frame", 0)
         self.color = U32ChunkBytes("Color", bytes())
-    def unpack(self, buffer, offset: int = 0):
-        self.frame.unpack(buffer, offset)
-        self.color.unpack(buffer, offset + 0x2)
-    def unpack_json(self, entry):
-        self.frame.unpack_json(entry)
-        self.color.unpack_json(entry)
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        binary_data += self.frame.pack()
-        binary_data += self.color.pack()
-        return binary_data
-    def pack_json(self):
-        obj = dict()
-        self.frame.pack_json(obj)
-        self.color.pack_json(obj)
-        return obj
+        self.auto_chunks = [self.frame, self.color]
 
-class JPADynamicsBlock(JPAChunk):
+class JPADynamicsBlock(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("BEM1")
         self.flags = Flag32Chunk("Flags")
         self.flags.assign_flag("VolumeType", 8, 0x07, VolumeType, VolumeType.CUBE) # 8, 9, 10
         self.flags.assign_flag("FixedDensity", 0, 0x01, bool) # 0
@@ -174,43 +192,9 @@ class JPADynamicsBlock(JPAChunk):
         ]
 
 
-
-    def unpack(self, buffer, offset: int = 0):
-        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
-        for var in self.auto_chunks:
-            var.unpack(buffer, offset)
-            offset += var.get_size()
-    def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD", self.binary_data.hex())
-            print("NEW", binary_data.hex())
-        out_data = binary_data + pyaurum.align4(self.binary_data)
-        return "BEM1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
-
-    def pack_json(self):
-        obj = dict()
-        for var in self.auto_chunks:
-            var.pack_json(obj)
-            
-        obj["BinaryData"] = self.binary_data.hex()
-        return obj
-
-
-class JPAFieldBlock(JPAChunk):
+class JPAFieldBlock(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("FLD1")
         self.flags = Flag32Chunk("FieldFlags")
         self.flags.assign_flag("FieldType", 0, 0xF, FieldType) # 0, 1, 2, 3
         self.flags.assign_flag("VelocityType", 8, 0x03, FieldAddType) # 8, 9
@@ -244,57 +228,20 @@ class JPAFieldBlock(JPAChunk):
             self.cycle, Offset(0x3)
         ]
 
-        
-
-    def unpack(self, buffer, offset: int = 0):
-        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
-        
-        for var in self.auto_chunks:
-            var.unpack(buffer, offset)
-            offset += var.get_size()
-
-    def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD",self.binary_data.hex())
-            print("NEW",binary_data.hex())
-        out_data = binary_data + pyaurum.align4(self.binary_data)
-        return "FLD1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
-
-    def pack_json(self):
-        obj = dict()
-        for var in self.auto_chunks:
-            var.pack_json(obj)
-            
-        obj["BinaryData"] = self.binary_data.hex()
-        return obj
-
-
-class JPAKeyBlock(JPAChunk):
+class JPAKeyBlock(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("KFA1")
         self.key_type = U8Chunk("KeyType") # KeyType enum
         self.key_count = U8Chunk("KeyCount")
+        unused = U8Chunk("Unused")
         self.loop = BoolChunk("Loop")
-        self.auto_chunks = [self.key_type, self.key_count, Offset(0x1), self.loop]
+        self.auto_chunks = [self.key_type, self.key_count, unused, self.loop]
         self.keyframes = []
     
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
         self.binary_data = buffer[offset:offset + size]
-        
         for var in self.auto_chunks:
             var.unpack(buffer, offset)
             offset += var.get_size()
@@ -304,10 +251,7 @@ class JPAKeyBlock(JPAChunk):
             self.keyframes.append(keyframe)
 
     def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
+        JPAStandardChunk.unpack_json(self, entry)
         self.keyframes = []
         for keyframe_json in entry["Keyframes"]:
             key = JPAKeyframe()
@@ -315,21 +259,11 @@ class JPAKeyBlock(JPAChunk):
             self.keyframes.append(key)
 
     def pack(self) -> bytes:
-        binary_data = bytearray()
         self.key_count.val = len(self.keyframes)
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
+        binary_data = JPAChunk.pack(self)
         for keyframe in self.keyframes:
             binary_data += keyframe.pack()
-
-        # compare contents, ignore padding
-        self.binary_data = bytearray(self.binary_data)
-        self.binary_data[0x2:0x3] = pyaurum.pack_u8(0)
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD",self.binary_data.hex())
-            print("NEW",binary_data.hex())
+        self.identify_changes(binary_data)
         out_data = binary_data + pyaurum.align4(self.binary_data)
         return "KFA1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
@@ -341,11 +275,11 @@ class JPAKeyBlock(JPAChunk):
         for keyframe in self.keyframes:
             keyframes.append(keyframe.pack_json())
         obj["Keyframes"] = keyframes
-        obj["BinaryData"] = self.binary_data.hex()
+        obj["BinaryDataDONOTEDIT"] = self.binary_data.hex()
         return obj
 
 
-class JPABaseShape(JPAChunk):
+class JPABaseShape(JPAStandardChunk): # TODO maybe change pack
     def __init__(self):
         self.binary_data = None
         # Unknown flags: 11, 13, 23 
@@ -430,7 +364,7 @@ class JPABaseShape(JPAChunk):
 
         # put vars in here to auto unpack, unpack_json, pack_json. currently does NOT include pack
         # order DOES matter
-        self.auto_handle_vars = [self.flags, Offset(0x4), self.base_size_x, self.base_size_y, self.blend_mode_flags, self.alpha_compare_flags, 
+        self.auto_chunks = [self.flags, Offset(0x4), self.base_size_x, self.base_size_y, self.blend_mode_flags, self.alpha_compare_flags, 
                                  self.alpha_reference_0, self.alpha_reference_1, 
                                  self.z_mode_flags, self.texture_flags, Offset(0x1), self.texture_index, 
                                  self.color_flags, Offset(0x2), self.color_animation_max_frame, self.primary_color, self.environment_color,
@@ -441,7 +375,7 @@ class JPABaseShape(JPAChunk):
 
     def unpack(self, buffer, offset: int = 0):
         rel_offset = 8 # this is the offset of the first var we auto unpack
-        for var in self.auto_handle_vars:
+        for var in self.auto_chunks:
             var.unpack(buffer, offset + rel_offset)
             rel_offset += var.get_size()
         initial_offset = offset
@@ -482,7 +416,7 @@ class JPABaseShape(JPAChunk):
                 self.environment_color_data.append(frame)
 
     def unpack_json(self, entry):
-        for var in self.auto_handle_vars:
+        for var in self.auto_chunks:
             var.unpack_json(entry)
         self.binary_data = bytes.fromhex(entry["HexRef-DONOTEDIT"])
         self.texture_index_anim_data = entry["TextureIndexAnimData"]
@@ -553,18 +487,13 @@ class JPABaseShape(JPAChunk):
 
         
         binary_data += extra_data
-        if (self.binary_data != binary_data):
-            print("--DETECTED CHANGE--")
-            print(self.binary_data.hex())
-            print(binary_data.hex())
-            print("-------------------")
-
+        self.identify_changes(binary_data)
         out_data = binary_data + pyaurum.align4(binary_data)
         return "BSP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
 
     def pack_json(self):
         obj = dict()
-        for var in self.auto_handle_vars:
+        for var in self.auto_chunks:
             var.pack_json(obj)
         obj["HexRef-DONOTEDIT"] = self.binary_data.hex()
         obj["ExtraDataRef-DONOTEDIT"] = self.extra_data.hex()
@@ -585,8 +514,9 @@ class JPABaseShape(JPAChunk):
         return obj
 
 
-class JPAExtraShape(JPAChunk):
+class JPAExtraShape(JPAStandardChunk):
     def __init__(self):
+        super().__init__("ESP1")
         self.binary_data = None
         # Unknown set flags: 2, 3
         self.flags = Flag32Chunk("ExtraShapeFlags")
@@ -635,44 +565,9 @@ class JPAExtraShape(JPAChunk):
         ]
 
 
-    def unpack(self, buffer, offset: int = 0):
-        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
-        
-        for var in self.auto_chunks:
-            var.unpack(buffer, offset)
-            offset += var.get_size()
-
-    def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD",self.binary_data.hex())
-            print("NEW",binary_data.hex())
-        out_data = binary_data + pyaurum.align4(self.binary_data)
-        return "ESP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
-
-    def pack_json(self):
-        obj = dict()
-        for var in self.auto_chunks:
-            var.pack_json(obj)
-            
-        obj["BinaryData"] = self.binary_data.hex()
-        return obj
-
-
-class JPAChildShape(JPAChunk):
+class JPAChildShape(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("SSP1")
         # Unknown but set: 19, 20
         self.flags = Flag32Chunk("Flags")
         self.flags.assign_flag("ShapeType", 0, 0xF, ShapeType) # 0, 1, 2, 3
@@ -716,45 +611,9 @@ class JPAChildShape(JPAChunk):
             self.texture_index, self.rotate_speed
         ]
 
-
-    def unpack(self, buffer, offset: int = 0):
-        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
-        
-        for var in self.auto_chunks:
-            var.unpack(buffer, offset)
-            offset += var.get_size()
-
-    def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD",self.binary_data.hex())
-            print("NEW",binary_data.hex())
-        out_data = binary_data + pyaurum.align4(self.binary_data)
-        return "SSP1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
-
-    def pack_json(self):
-        obj = dict()
-        for var in self.auto_chunks:
-            var.pack_json(obj)
-            
-        obj["BinaryData"] = self.binary_data.hex()
-        return obj
-
-
-class JPAExTexShape(JPAChunk):
+class JPAExTexShape(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("ETX1")
         # Only 2 bits are set. That's crazy.
         self.flags = Flag32Chunk("ExTexFlags")
         self.flags.assign_flag("IndirectTextureMode", 0, 0x1, IndirectTextureMode)
@@ -774,41 +633,6 @@ class JPAExTexShape(JPAChunk):
             self.indirect_texture_matrix_1_0, self.indirect_texture_matrix_1_1, self.indirect_texture_matrix_1_2,
             self.matrix_scale, self.indirect_texture_index, self.second_texture_index, Offset(0x1)
         ]
-
-
-    def unpack(self, buffer, offset: int = 0):
-        size = pyaurum.get_s32(buffer, offset + 0x4) - 8
-        offset += 0x8
-        self.binary_data = buffer[offset:offset + size]
-        
-        for var in self.auto_chunks:
-            var.unpack(buffer, offset)
-            offset += var.get_size()
-
-    def unpack_json(self, entry):
-        self.binary_data = bytes.fromhex(entry["BinaryData"])
-        for var in self.auto_chunks:
-            var.unpack_json(entry)
-
-    def pack(self) -> bytes:
-        binary_data = bytearray()
-        for var in self.auto_chunks:
-            binary_data += var.pack()
-
-        if (self.binary_data != binary_data or not binary_data):
-            print("Packing does not match contents of original file.")
-            print("OLD",self.binary_data.hex())
-            print("NEW",binary_data.hex())
-        out_data = binary_data + pyaurum.align4(self.binary_data)
-        return "ETX1".encode("ascii") + pyaurum.pack_s32(8 + len(out_data)) + out_data
-
-    def pack_json(self):
-        obj = dict()
-        for var in self.auto_chunks:
-            var.pack_json(obj)
-            
-        obj["BinaryData"] = self.binary_data.hex()
-        return obj
 
 
 class JPAResource:
