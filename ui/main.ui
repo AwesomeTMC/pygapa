@@ -2730,26 +2730,17 @@ Rotation</string>
                     </layout>
                    </item>
                    <item row="0" column="1">
-                    <layout class="QGridLayout" name="gridLayout_19" rowstretch="0,1,1,1">
-                     <item row="1" column="1">
-                      <widget class="QDoubleSpinBox" name="indirectTexMatrix10">
+                    <layout class="QGridLayout" name="gridLayout_19" rowstretch="0,0,0">
+                     <item row="0" column="0" colspan="2">
+                      <widget class="QLabel" name="label_44">
                        <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
+                       <property name="text">
+                        <string>Indirect Texture Matrix</string>
                        </property>
                       </widget>
                      </item>
@@ -2775,8 +2766,52 @@ Rotation</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0">
+                     <item row="1" column="2">
+                      <widget class="QDoubleSpinBox" name="indirectTexMatrix02">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
                       <widget class="QDoubleSpinBox" name="indirectTexMatrix01">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="prefix">
+                        <string/>
+                       </property>
+                       <property name="decimals">
+                        <number>4</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-999999.999900000053458</double>
+                       </property>
+                       <property name="maximum">
+                        <double>999999.999900000053458</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QDoubleSpinBox" name="indirectTexMatrix10">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -2819,29 +2854,7 @@ Rotation</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
-                      <widget class="QDoubleSpinBox" name="indirectTexMatrix02">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="prefix">
-                        <string/>
-                       </property>
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-999999.999900000053458</double>
-                       </property>
-                       <property name="maximum">
-                        <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1">
+                     <item row="2" column="2">
                       <widget class="QDoubleSpinBox" name="indirectTexMatrix12">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -2860,19 +2873,6 @@ Rotation</string>
                        </property>
                        <property name="maximum">
                         <double>999999.999900000053458</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="2">
-                      <widget class="QLabel" name="label_44">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string>Indirect Texture Matrix</string>
                        </property>
                       </widget>
                      </item>

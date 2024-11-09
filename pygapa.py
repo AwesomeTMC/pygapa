@@ -11,7 +11,7 @@ from PyQt5 import uic, QtGui, QtCore, QtWidgets
 
 # General application info
 APP_NAME = "pygapa"
-APP_VERSION = "v0.7.1U"
+APP_VERSION = "v0.7.2U"
 APP_CREATOR = "Aurum, AwesomeTMC"
 APP_TITLE = f"{APP_NAME} {APP_VERSION} -- by {APP_CREATOR}"
 
