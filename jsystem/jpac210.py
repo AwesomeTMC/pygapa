@@ -64,7 +64,10 @@ class JPAChunk:
     def pack(self) -> bytes:
         binary_data = bytearray()
         for var in self.auto_chunks:
-            binary_data += var.pack()
+            var_data = var.pack()
+            if var_data is None:
+                continue
+            binary_data += var_data
         return binary_data
     def pack_json(self):
         obj = dict()
@@ -279,7 +282,7 @@ class JPAKeyBlock(JPAStandardChunk):
         return obj
 
 
-class JPABaseShape(JPAStandardChunk): # TODO maybe change pack
+class JPABaseShape(JPAStandardChunk):
     def __init__(self):
         self.binary_data = None
         # Unknown flags: 11, 13, 23 
@@ -361,8 +364,6 @@ class JPABaseShape(JPAStandardChunk): # TODO maybe change pack
         self.tex_inc_scale_x = FlagConditionalChunk(F32Chunk("TexIncScaleX", 1.0), self.flags, 24)
         self.tex_inc_scale_y = FlagConditionalChunk(F32Chunk("TexIncScaleY", 1.0), self.flags, 24)
         self.tex_inc_rot = FlagConditionalChunk(F32Chunk("TexIncRotation", 0.0), self.flags, 24)
-
-        # put vars in here to auto unpack, unpack_json, pack_json. currently does NOT include pack
         # order DOES matter
         self.auto_chunks = [self.flags, Offset(0x4), self.base_size_x, self.base_size_y, self.blend_mode_flags, self.alpha_compare_flags, 
                                  self.alpha_reference_0, self.alpha_reference_1, 
@@ -433,59 +434,33 @@ class JPABaseShape(JPAStandardChunk): # TODO maybe change pack
 
     def pack(self) -> bytes:
         binary_data = bytearray()
-        binary_data += self.flags.pack()
-        binary_data += pyaurum.pack_u16(0)
-        binary_data += pyaurum.pack_u16(0)
-        binary_data += self.base_size_x.pack()
-        binary_data += self.base_size_y.pack()
-        binary_data += self.blend_mode_flags.pack()
-        binary_data += self.alpha_compare_flags.pack()
-        binary_data += self.alpha_reference_0.pack()
-        binary_data += self.alpha_reference_1.pack()
-        binary_data += self.z_mode_flags.pack()
-        binary_data += self.texture_flags.pack()
-        binary_data += pyaurum.pack_u8(len(self.texture_index_anim_data))
-        binary_data += self.texture_index.pack()
-        binary_data += self.color_flags.pack()
-        binary_data += pyaurum.pack_u8(len(self.primary_color_data))
-        binary_data += pyaurum.pack_u8(len(self.environment_color_data))
-        binary_data += self.color_animation_max_frame.pack()
-        binary_data += self.primary_color.pack()
-        binary_data += self.environment_color.pack()
-        binary_data += self.animation_random.pack()
-        binary_data += self.color_loop_offset_mask.pack()
-        binary_data += self.texture_index_loop_offset_mask.pack()
-        binary_data += '\0\0\0'.encode("ascii")
+        for var in self.auto_chunks:
+            var_data = var.pack()
+            if var_data is None:
+                continue
+            binary_data += var_data
         extra_data = bytes()
-        if ((self.flags.get_val() >> 24) & 0x01):
-            extra_data += self.tex_init_trans_x.pack()
-            extra_data += self.tex_init_trans_y.pack()
-            extra_data += self.tex_init_scale_x.pack()
-            extra_data += self.tex_init_scale_y.pack()
-            extra_data += self.tex_init_rot.pack()
-            extra_data += self.tex_inc_trans_x.pack()
-            extra_data += self.tex_inc_trans_y.pack()
-            extra_data += self.tex_inc_scale_x.pack()
-            extra_data += self.tex_inc_scale_y.pack()
-            extra_data += self.tex_inc_rot.pack()
+        extra_data_offset = 0x34
+        if self.flags.get_val_flag_name("IsEnableTexScrollAnim"):
+            extra_data_offset += 0x28
         if self.texture_flags.get_val_flag_name("IsEnableTexAnim"):
             extra_data += pyaurum.pack_u8_array(self.texture_index_anim_data)
             extra_data += pyaurum.align4(extra_data)
+            binary_data[0x17:0x18] = pyaurum.pack_u8(len(self.texture_index_anim_data))
         if (self.color_flags.get_val_flag_name("IsPrimaryColorAnimEnabled")):
-            offs = len(extra_data) + 0x34
+            offs = len(extra_data) + extra_data_offset
             for primary_color in self.primary_color_data:
                 extra_data += primary_color.pack()
             extra_data += pyaurum.align4(extra_data)
             binary_data[0x4:0x6] = pyaurum.pack_u16(offs)
+            binary_data[0x1A:0x1B] = pyaurum.pack_u8(len(self.primary_color_data))
         if (self.color_flags.get_val_flag_name("IsEnvironmentColorAnimEnabled")):
-            offs = len(extra_data) + 0x34
+            offs = len(extra_data) + extra_data_offset
             for environment_color in self.environment_color_data:
                 extra_data += environment_color.pack()
             extra_data += pyaurum.align4(extra_data)
             binary_data[0x6:0x8] = pyaurum.pack_u16(offs)
-
-
-        
+            binary_data[0x1B:0x1C] = pyaurum.pack_u8(len(self.environment_color_data))
         binary_data += extra_data
         self.identify_changes(binary_data)
         out_data = binary_data + pyaurum.align4(binary_data)
