@@ -104,7 +104,7 @@ class U32Chunk(TypedChunk):
         
 
 class U32ChunkBytes(TypedChunk):
-    def __init__(self, name, default_val=0):
+    def __init__(self, name, default_val=pyaurum.pack_u32(0)):
         super().__init__(name, default_val)
         self.size = 4
     def unpack(self, buffer, offset: int = 0):
@@ -118,7 +118,7 @@ class U32ChunkBytes(TypedChunk):
         
 
 class F32Chunk(TypedChunk):
-    def __init__(self, name, default_val=0):
+    def __init__(self, name, default_val=0.0):
         super().__init__(name, default_val)
         self.size = 4
     def unpack(self, buffer, offset: int = 0):

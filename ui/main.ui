@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1029</width>
+    <width>921</width>
     <height>879</height>
    </rect>
   </property>
@@ -728,7 +728,7 @@
           <property name="locale">
            <locale language="English" country="UnitedStates"/>
           </property>
-          <layout class="QGridLayout" name="gridLayout_7">
+          <layout class="QGridLayout" name="gridLayout_7" rowstretch="3,3,0,0,2,0">
            <item row="4" column="0">
             <widget class="QScrollArea" name="scrollArea">
              <property name="sizePolicy">
@@ -756,8 +756,8 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-52</y>
-                <width>584</width>
+                <y>-2</y>
+                <width>476</width>
                 <height>304</height>
                </rect>
               </property>
@@ -5250,14 +5250,41 @@ Max Frame</string>
             </widget>
            </item>
            <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0" columnstretch="1,2">
+            <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0" columnstretch="2,3,3">
              <property name="horizontalSpacing">
               <number>24</number>
              </property>
              <property name="verticalSpacing">
               <number>6</number>
              </property>
-             <item row="4" column="1">
+             <item row="5" column="1">
+              <widget class="QPushButton" name="btnAddBlock">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Add</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" colspan="2">
+              <widget class="QLineEdit" name="textParticleName">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="labelParticleBlocks">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>Blocks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1" colspan="2">
               <widget class="QTreeWidget" name="treeParticleBlocks">
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
@@ -5272,24 +5299,44 @@ Max Frame</string>
                </column>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="textParticleName">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelParticleName">
+             <item row="3" column="0">
+              <widget class="QLabel" name="labelParticleTextures">
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
                </property>
                <property name="text">
-                <string>Name</string>
+                <string>Textures</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0" colspan="2">
+             <item row="5" column="2">
+              <widget class="QPushButton" name="btnRemoveBlock">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="3">
+              <widget class="Line" name="line">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1" colspan="2">
+              <widget class="QPlainTextEdit" name="textParticleTextures">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="3">
               <widget class="QLabel" name="labelParticleInfo">
                <property name="palette">
                 <palette>
@@ -5336,40 +5383,13 @@ Max Frame</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
-              <widget class="QPlainTextEdit" name="textParticleTextures">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="Line" name="line">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="labelParticleBlocks">
+             <item row="2" column="0">
+              <widget class="QLabel" name="labelParticleName">
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
                </property>
                <property name="text">
-                <string>Blocks</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="labelParticleTextures">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>Textures</string>
+                <string>Name</string>
                </property>
               </widget>
              </item>
@@ -5409,7 +5429,7 @@ Max Frame</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1029</width>
+     <width>921</width>
      <height>22</height>
     </rect>
    </property>

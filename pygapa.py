@@ -11,7 +11,7 @@ from PyQt5 import uic, QtGui, QtCore, QtWidgets
 
 # General application info
 APP_NAME = "pygapa"
-APP_VERSION = "v0.7.2U"
+APP_VERSION = "v0.7.3U"
 APP_CREATOR = "Aurum, AwesomeTMC"
 APP_TITLE = f"{APP_NAME} {APP_VERSION} -- by {APP_CREATOR}"
 
@@ -474,6 +474,9 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.baseIncrementTranslationY.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_trans_y.set_val(s))
         self.baseIncrementScaleX.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_scale_x.set_val(s))
         self.baseIncrementScaleY.valueChanged.connect(lambda s: self.get_current_block_data().tex_inc_scale_y.set_val(s))
+
+        self.btnAddBlock.clicked.connect(self.show_add_block_menu)
+        self.btnRemoveBlock.clicked.connect(self.remove_selected_particle_block)
 
         # Create preferences window and menu function
         self.preferences = PgpPreferencesWindow(self)
@@ -966,11 +969,13 @@ class PgpEditor(QtWidgets.QMainWindow):
         # Make sure only one effect is selected
         if len(self.listParticles.selectedItems()) != 1:
             self.widgetParticles.setEnabled(False)
+            self.btnAddBlock.setEnabled(False)
             self.current_particle = None
             return
 
         # Enable all effect editing components and get currently selected effect instance
         self.widgetParticles.setEnabled(True)
+        self.btnAddBlock.setEnabled(True)
         self.current_particle = self.particle_data.particles[self.listParticles.currentRow()]
 
         # Block signals temporarily to prevent invoking textChanged
@@ -984,6 +989,8 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.populate_particle_blocks()
 
         self.hide_all_particle_settings_tabs()
+
+        self.btnRemoveBlock.setEnabled(False)
 
         # Release blocked signals
         self.textParticleTextures.blockSignals(False)
@@ -1033,10 +1040,10 @@ class PgpEditor(QtWidgets.QMainWindow):
         current_block_node = self.treeParticleBlocks.currentItem()
         current_block_type = current_block_node.data(0, PBNODE_MODE)
         current_block_data = current_block_node.data(0, PBNODE_DATA)
-        print(current_block_node.data(0, PBNODE_MODE))
         self.show_particle_settings_tab(6)
         self.keySettings.setEnabled(False)
         self.keyRemove.setEnabled(False)
+        self.btnRemoveBlock.setEnabled(False)
         self.hide_all_particle_settings_tabs()
         if current_block_type == PgpEditorMode.DYNAMICS_BLOCK:
             # 0-3: Emitter Tabs
@@ -1083,6 +1090,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             for i in range(4, 6):
                 # 4, 5: Field Block
                 self.show_particle_settings_tab(i)
+            self.btnRemoveBlock.setEnabled(True)
             self.fieldType.setCurrentIndex(current_block_data.flags.get_val_flag_name("FieldType"))
             self.velocityType.setCurrentIndex(current_block_data.flags.get_val_flag_name("VelocityType"))
             self.noInheritRotate.setChecked(current_block_data.flags.get_val_flag_name("NoInheritRotate"))
@@ -1106,6 +1114,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.distanceTime.setValue(current_block_data.distance_time.get_val())
             self.cycle.setValue(current_block_data.cycle.get_val())
         elif current_block_type == PgpEditorMode.KEY_BLOCK:
+            self.btnRemoveBlock.setEnabled(True)
             self.keyframeTree.clear()
             self.show_particle_settings_tab(6)
             self.keyLoop.setChecked(current_block_data.loop.get_val())
@@ -1193,6 +1202,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         elif current_block_type == PgpEditorMode.EXTRA_SHAPE:
             for i in range(11, 15):
                 self.show_particle_settings_tab(i)
+            self.btnRemoveBlock.setEnabled(True)
             self.extraIsDiffXY.setChecked(current_block_data.flags.get_val_flag_name("IsDiffXY"))
             self.extraSinWaveEnabled.setChecked(current_block_data.flags.get_val_flag_name("IsEnableSinWave"))
             self.extraPivotX.setValue(current_block_data.flags.get_val_flag_name("PivotX"))
@@ -1228,6 +1238,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         elif current_block_type == PgpEditorMode.CHILD_SHAPE:
             for i in range(8, 11):
                 self.show_particle_settings_tab(i)
+            self.btnRemoveBlock.setEnabled(True)
             self.childShapeType.setCurrentIndex(current_block_data.flags.get_val_flag_name("ShapeType"))
             self.childRotationType.setCurrentIndex(current_block_data.flags.get_val_flag_name("RotationType"))
             self.childDirectionType.setCurrentIndex(current_block_data.flags.get_val_flag_name("DirectionType"))
@@ -1259,6 +1270,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.childPositionRandom.setValue(current_block_data.position_random.get_val())
         elif current_block_type == PgpEditorMode.EX_TEX_SHAPE:
             self.show_particle_settings_tab(7)
+            self.btnRemoveBlock.setEnabled(True)
             self.indirectTextureMode.setCurrentIndex(self.current_particle.ex_tex_shape.flags.get_val_flag_name("IndirectTextureMode"))
             self.matrixScale.setValue(self.current_particle.ex_tex_shape.matrix_scale.get_val())
             self.indirectTextureIndex.setValue(self.current_particle.ex_tex_shape.indirect_texture_index.get_val())
@@ -1482,7 +1494,117 @@ class PgpEditor(QtWidgets.QMainWindow):
     def get_current_block_data(self):
         current_item = self.treeParticleBlocks.currentItem()
         return current_item.data(0, PBNODE_DATA)
+    
+    def show_add_block_menu(self):
+        add_block_menu = QtWidgets.QMenu("Add block", self)
+        field_action = QtWidgets.QAction("Field block", self)
+        field_action.triggered.connect(lambda: self.add_particle_block(PgpEditorMode.FIELD_BLOCK))
+        add_block_menu.addAction(field_action)
+        key_action = QtWidgets.QAction("Key block", self)
+        key_action.triggered.connect(lambda: self.add_particle_block(PgpEditorMode.KEY_BLOCK))
+        add_block_menu.addAction(key_action)
+        if not self.current_particle.extra_shape:
+            extra_action = QtWidgets.QAction("Extra shape", self)
+            extra_action.triggered.connect(lambda: self.add_particle_block(PgpEditorMode.EXTRA_SHAPE))
+            add_block_menu.addAction(extra_action)
+        if not self.current_particle.child_shape:
+            child_action = QtWidgets.QAction("Child shape", self)
+            child_action.triggered.connect(lambda: self.add_particle_block(PgpEditorMode.CHILD_SHAPE))
+            add_block_menu.addAction(child_action)
+        if not self.current_particle.ex_tex_shape:
+            ex_tex_action = QtWidgets.QAction("Indirect shape", self)
+            ex_tex_action.triggered.connect(lambda: self.add_particle_block(PgpEditorMode.EX_TEX_SHAPE))
+            add_block_menu.addAction(ex_tex_action)
+        add_block_menu.exec_(self.btnAddBlock.mapToGlobal(self.btnAddBlock.rect().bottomLeft()))
+    
+    def add_particle_block(self, block_type : PgpEditorMode):
+        if self.get_editor_mode() != PgpEditorMode.PARTICLE:
+            return
+        if len(self.listParticles.selectedItems()) == 0:
+            self.status("No particle(s) selected!", StatusColor.ERROR)
+            return
+        if block_type == PgpEditorMode.FIELD_BLOCK:
+            self.current_particle : jsystem.jpac210.JPAResource
+            new_block = jsystem.jpac210.JPAFieldBlock()
+            self.current_particle.field_blocks.append(new_block)
+            if self.current_particle.field_blocks is None:
+                self.current_particle.field_blocks = list()
+            node = self.find_particle_block(PgpEditorMode.FIELD_BLOCKS)
+            block_node = create_data_node("Field block", PgpEditorMode.FIELD_BLOCK, new_block)
+            node.addChild(block_node)
+        elif block_type == PgpEditorMode.KEY_BLOCK:
+            self.current_particle : jsystem.jpac210.JPAResource
+            new_block = jsystem.jpac210.JPAKeyBlock()
+            self.current_particle.key_blocks.append(new_block)
+            if self.current_particle.key_blocks is None:
+                self.current_particle.key_blocks = list()
+            node = self.find_particle_block(PgpEditorMode.KEY_BLOCKS)
+            block_node = create_data_node("Key block", PgpEditorMode.KEY_BLOCK, new_block)
+            node.addChild(block_node)
+        elif block_type == PgpEditorMode.EXTRA_SHAPE:
+            # if there's already an extra shape, return
+            if self.current_particle.extra_shape:
+                return
+            self.current_particle.extra_shape = jsystem.jpac210.JPAExtraShape()
+            block_node = create_data_node("Extra shape", PgpEditorMode.EXTRA_SHAPE, self.current_particle.extra_shape)
+            self.treeParticleBlocks.addTopLevelItem(block_node)
+        elif block_type == PgpEditorMode.CHILD_SHAPE:
+            # if there's already a child shape, return
+            if self.current_particle.child_shape:
+                return
+            self.current_particle.child_shape = jsystem.jpac210.JPAChildShape()
+            block_node = create_data_node("Child shape", PgpEditorMode.CHILD_SHAPE, self.current_particle.child_shape)
+            self.treeParticleBlocks.addTopLevelItem(block_node)
+        elif block_type == PgpEditorMode.EX_TEX_SHAPE:
+            # if there's already an indirect shape, return
+            if self.current_particle.ex_tex_shape:
+                return
+            self.current_particle.ex_tex_shape = jsystem.jpac210.JPAExTexShape()
+            block_node = create_data_node("Indirect shape", PgpEditorMode.EX_TEX_SHAPE, self.current_particle.ex_tex_shape)
+            self.treeParticleBlocks.addTopLevelItem(block_node)
+        else:
+            self.status("Can't add block of type " + block_type.name + ". Unrecognized type.", StatusColor.ERROR)
+            return
+        self.status("Added new block.", StatusColor.INFO)
 
+    def find_particle_block(self, block_type : PgpEditorMode):
+        for i in range(self.treeParticleBlocks.topLevelItemCount()):
+            node = self.treeParticleBlocks.topLevelItem(i)
+            mode = node.data(0, PBNODE_MODE)
+            if mode == block_type:
+                return node
+        return None
+    
+    def remove_selected_particle_block(self):
+        # Make sure only one block is selected, not 0 or multiple blocks.
+        if len(self.treeParticleBlocks.selectedItems()) != 1:
+            return
+
+        block_node = self.treeParticleBlocks.currentItem()
+        mode = block_node.data(0, PBNODE_MODE)
+        
+        if mode == PgpEditorMode.FIELD_BLOCK:
+            top_level_node = self.find_particle_block(PgpEditorMode.FIELD_BLOCKS)
+            index = top_level_node.indexOfChild(block_node)
+            top_level_node.takeChild(index)
+            del self.current_particle.field_blocks[index]
+        elif mode == PgpEditorMode.KEY_BLOCK:
+            top_level_node = self.find_particle_block(PgpEditorMode.KEY_BLOCKS)
+            index = top_level_node.indexOfChild(block_node)
+            top_level_node.takeChild(index)
+            del self.current_particle.key_blocks[index]
+        elif mode == PgpEditorMode.CHILD_SHAPE: 
+            self.treeParticleBlocks.takeTopLevelItem(self.treeParticleBlocks.indexOfTopLevelItem(block_node))
+            self.current_particle.child_shape = None
+        elif mode == PgpEditorMode.EXTRA_SHAPE:
+            self.treeParticleBlocks.takeTopLevelItem(self.treeParticleBlocks.indexOfTopLevelItem(block_node))
+            self.current_particle.extra_shape = None
+        elif mode == PgpEditorMode.EX_TEX_SHAPE:
+            self.treeParticleBlocks.takeTopLevelItem(self.treeParticleBlocks.indexOfTopLevelItem(block_node))
+            self.current_particle.ex_tex_shape = None
+        else:
+            self.status("Can't remove block of type " + mode.name + ". Not removable.", StatusColor.ERROR)
+    
     def hide_all_particle_settings_tabs(self):
         for i in range(self.particleSettingsTabs.count()):
             self.particleSettingsTabs.setTabVisible(i, False)
@@ -1495,8 +1617,21 @@ class PgpEditor(QtWidgets.QMainWindow):
     def add_particle(self):
         if self.get_editor_mode() != PgpEditorMode.PARTICLE:
             return
+        # Make sure the added particle is selected afterwards
+        new_index = self.listParticles.count()
 
-        self.show_critical("Adding new particles isn't supported yet!")
+        # Create new particle
+        new_particle = jsystem.jpac210.JPAResource()
+        name = "NewParticle" + str(new_index)
+        new_particle.name = name
+        self.particle_data.particles.append(new_particle)
+        self.listParticles.addItem(name)
+
+        # Update list selection
+        self.listParticles.clearSelection()
+        self.listParticles.setCurrentRow(new_index)
+
+        self.status("Added a new particle.", StatusColor.INFO)
 
     def delete_particles(self):
         if self.get_editor_mode() != PgpEditorMode.PARTICLE:

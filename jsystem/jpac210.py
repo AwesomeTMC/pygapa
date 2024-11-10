@@ -80,6 +80,7 @@ class JPAStandardChunk:
     def __init__(self, magic):
         super().__init__()
         self.magic = magic
+        self.binary_data = bytearray(0)
     def unpack(self, buffer, offset: int = 0):
         size = pyaurum.get_s32(buffer, offset + 0x4) - 8
         offset += 0x8
@@ -102,26 +103,32 @@ class JPAStandardChunk:
         obj["BinaryDataDONOTEDIT"] = self.binary_data.hex()
         return obj
     
-    def identify_changes(self, binary_data):
+    def identify_changes(self, binary_data, set_binary_data=True):
+        if (self.binary_data == None or binary_data == None):
+            return
         if (self.binary_data != binary_data or not binary_data):
             print(type(self).__name__, "identified changes:")
+            print("OLD", self.binary_data.hex())
+            print("NEW", binary_data.hex())
             offset = 0
             for x in self.auto_chunks:
+                size = x.get_size()
+                if (offset + size > len(self.binary_data) or offset + size > len(binary_data)):
+                    break
                 y = deepcopy(x)
                 y.unpack(self.binary_data, offset)
                 new_obj = dict()
                 x.pack_json(new_obj)
                 old_obj = dict()
                 y.pack_json(old_obj)
-                size = x.get_size()
                 old_bin = self.binary_data[offset:offset + size]
                 new_bin = binary_data[offset:offset + size]
                 if (new_bin != old_bin):
                     print(old_obj, "->", new_obj)
                     #print(old_bin, "->", new_bin, "size:", size)
                 offset += size
-            print("OLD", self.binary_data.hex())
-            print("NEW", binary_data.hex())
+            if set_binary_data:
+                self.binary_data = binary_data
 
 class JPAKeyframe(JPAChunk):
     def __init__(self):
@@ -284,7 +291,7 @@ class JPAKeyBlock(JPAStandardChunk):
 
 class JPABaseShape(JPAStandardChunk):
     def __init__(self):
-        self.binary_data = None
+        super().__init__("BSP1")
         # Unknown flags: 11, 13, 23 
         # 19 (may be unused)
         self.flags = Flag32Chunk("BaseShapeFlags") # 0x8
@@ -364,6 +371,9 @@ class JPABaseShape(JPAStandardChunk):
         self.tex_inc_scale_x = FlagConditionalChunk(F32Chunk("TexIncScaleX", 1.0), self.flags, 24)
         self.tex_inc_scale_y = FlagConditionalChunk(F32Chunk("TexIncScaleY", 1.0), self.flags, 24)
         self.tex_inc_rot = FlagConditionalChunk(F32Chunk("TexIncRotation", 0.0), self.flags, 24)
+        self.texture_index_anim_data = []
+        self.primary_color_data = []
+        self.environment_color_data = []
         # order DOES matter
         self.auto_chunks = [self.flags, Offset(0x4), self.base_size_x, self.base_size_y, self.blend_mode_flags, self.alpha_compare_flags, 
                                  self.alpha_reference_0, self.alpha_reference_1, 
@@ -470,8 +480,7 @@ class JPABaseShape(JPAStandardChunk):
         obj = dict()
         for var in self.auto_chunks:
             var.pack_json(obj)
-        obj["HexRef-DONOTEDIT"] = self.binary_data.hex()
-        obj["ExtraDataRef-DONOTEDIT"] = self.extra_data.hex()
+        obj["BinaryDataDONOTEDIT"] = self.binary_data.hex()
         if self.texture_flags.get_val_flag_name("IsEnableTexAnim"):
             obj["TextureIndexAnimData"] = self.texture_index_anim_data
         else:
@@ -612,18 +621,18 @@ class JPAExTexShape(JPAStandardChunk):
 class JPAResource:
     def __init__(self):
         self.name = None
-        self.dynamics_block = None   # JPADynamicsBlock
-        self.field_blocks = list()   # list of JPAFieldBlock
-        self.key_blocks = list()     # list of JPAKeyBlock
-        self.base_shape = None       # JPABaseShape
-        self.extra_shape = None      # JPAExtraShape
-        self.child_shape = None      # JPAChildShape
-        self.ex_tex_shape = None     # JPAExTexShape
-        self.texture_ids = list()    # List of texture IDs
-        self.texture_names = list()  # List of texture file names, will be populated later on
+        self.dynamics_block = JPADynamicsBlock() # JPADynamicsBlock
+        self.field_blocks = list()               # list of JPAFieldBlock
+        self.key_blocks = list()                 # list of JPAKeyBlock
+        self.base_shape = JPABaseShape()         # JPABaseShape
+        self.extra_shape = None                  # JPAExtraShape
+        self.child_shape = None                  # JPAChildShape
+        self.ex_tex_shape = None                 # JPAExTexShape
+        self.texture_ids = list()                # List of texture IDs
+        self.texture_names = list()              # List of texture file names, will be populated later on
 
-        self.index = 0               # The particles index inside the container
-        self.total_size = 0          # Total size in bytes, set when (un)packing
+        self.index = 0                           # The particles index inside the container
+        self.total_size = 0                      # Total size in bytes, set when (un)packing
 
     def unpack(self, buffer, offset: int = 0):
         # Setup members
