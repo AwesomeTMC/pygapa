@@ -194,6 +194,7 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.actionToolImport.triggered.connect(self.import_particles)
 
         self.textParticleName.textEdited.connect(self.set_particle_name)
+        self.textParticleTextures.textChanged.connect(lambda: self.set_particle_textures(self.textParticleTextures.toPlainText()))
 
         # Register effect editing actions
         self.listTextures.itemSelectionChanged.connect(self.select_texture)
@@ -1795,6 +1796,8 @@ class PgpEditor(QtWidgets.QMainWindow):
     def set_particle_name(self, text: str):
         self.current_particle.name = text
         self.update_current_particle_list_item()
+    def set_particle_textures(self, text: str):
+        self.current_particle.texture_names = text.splitlines()
     def set_particle_volume_type(self, val):
         self.current_particle.dynamics_block.flags.set_val_flag_name("VolumeType", val)
     def set_particle_follow_emitter(self, val: bool):

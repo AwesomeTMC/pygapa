@@ -429,7 +429,7 @@ class JPABaseShape(JPAStandardChunk):
     def unpack_json(self, entry):
         for var in self.auto_chunks:
             var.unpack_json(entry)
-        self.binary_data = bytes.fromhex(entry["HexRef-DONOTEDIT"])
+        self.binary_data = bytes.fromhex(entry["BinaryDataDONOTEDIT"])
         self.texture_index_anim_data = entry["TextureIndexAnimData"]
         self.primary_color_data = []
         for primary_key in entry["PrimaryColorKeyframes"]:
