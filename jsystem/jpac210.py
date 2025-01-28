@@ -1022,7 +1022,7 @@ class CompareType(enum.IntEnum):
 
 class IndirectTextureMode(enum.IntEnum):
     OFF = 0
-    SUBTRACT = 1
+    NORMAL = 1
 
 class AlphaOperator(enum.IntEnum):
     AND = 0
