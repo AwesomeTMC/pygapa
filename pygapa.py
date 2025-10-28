@@ -525,7 +525,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             self.effect_arc = jsystem.JKRArchive()
             self.effect_arc.unpack(pyaurum.read_bin_file(self.particle_data_file))
 
-            self.particle_data.unpack_rarc(self.effect_arc)
+            had_warns = self.particle_data.unpack_rarc(self.effect_arc)
         except Exception as e:  # Will be handled better in the future, smh
             self.status("An error occured while loading particle data. See output for details.", StatusColor.ERROR)
             print(e)
@@ -544,7 +544,11 @@ class PgpEditor(QtWidgets.QMainWindow):
         self.enable_all_components(True)
         self.widgetEffects.setEnabled(False)
 
-        self.status(f"Successfully loaded particle data from \"{self.particle_data_file}\".", StatusColor.INFO)
+        if not had_warns:
+            self.status(f"Successfully loaded particle data from \"{self.particle_data_file}\".", StatusColor.INFO)
+        else:
+            self.show_warning(f"Loaded particle data from \"{self.particle_data_file}\". See output for warnings.")
+            self.status(f"Loaded particle data from \"{self.particle_data_file}\". See output for warnings.", StatusColor.WARN)
 
     def save_particle_data(self):
         if self.particle_data is None or self.contains_errors():

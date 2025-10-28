@@ -282,7 +282,8 @@ class ParticleData:
             self.effects.append(effect)
             index += 1
 
-    def __unpack_bin_files(self, jpc_data, names_data, effects_data):
+    def __unpack_bin_files(self, jpc_data, names_data, effects_data) -> bool:
+        had_warnings = False
         # Load JPAResource and JPATexture entries
         print("Load JPC file ...")
         particle_container = jsystem.JParticlesContainer()
@@ -314,22 +315,30 @@ class ParticleData:
             particle_name = particle_name_entry["name"]
             particle_index = particle_name_entry["id"]
 
+            if particle_index >= len(particle_container.particles):
+                print(f"WARNING: The index referenced in ParticleNames.bcsv ({particle_index})\
+                    \nis bigger than the last indexed particle in the JPC ({len(particle_container.particles) - 1})!")
+                print("Particle name will be REMOVED:", particle_name)
+                had_warnings = True
+                continue
             particle = particle_container.particles[particle_index]
             particle.name = particle_name
 
             self.particles.append(particle)
 
-    def unpack_bin(self, jpc_file: str, names_file: str, effects_file: str):
+        return had_warnings
+
+    def unpack_bin(self, jpc_file: str, names_file: str, effects_file: str) -> bool:
         jpc_data = pyaurum.read_bin_file(jpc_file)
         names_data = pyaurum.read_bin_file(names_file)
         effects_data = pyaurum.read_bin_file(effects_file)
-        self.__unpack_bin_files(jpc_data, names_data, effects_data)
+        return self.__unpack_bin_files(jpc_data, names_data, effects_data)
 
-    def unpack_rarc(self, archive: jsystem.JKRArchive):
+    def unpack_rarc(self, archive: jsystem.JKRArchive) -> bool:
         jpc_data = archive.find_file("/Particles.jpc").data
         names_data = archive.find_file("/ParticleNames.bcsv").data
         effects_data = archive.find_file("/AutoEffectList.bcsv").data
-        self.__unpack_bin_files(jpc_data, names_data, effects_data)
+        return self.__unpack_bin_files(jpc_data, names_data, effects_data)
 
     def pack_json(self, json_file: str, particles_folder: str, bti_folder: str, effects_json_file: str):
         # Create JSON data that declares which particles and textures belong to this container
