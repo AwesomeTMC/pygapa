@@ -59,6 +59,12 @@ class JPAChunk:
             var.unpack(buffer, offset)
             offset += var.get_size()
     def unpack_json(self, entry):
+        # version 1
+        if isinstance(entry, str):
+            self.unpack(bytes.fromhex(entry))
+            return
+        
+        # version 2
         for var in self.auto_chunks:
             var.unpack_json(entry)
     def pack(self) -> bytes:
@@ -87,6 +93,14 @@ class JPAStandardChunk:
         self.binary_data = buffer[offset:offset + size]
         JPAChunk.unpack(self, buffer, offset)
     def unpack_json(self, entry):
+        # version 1 - hex string
+        if isinstance(entry, str):
+            data = bytes.fromhex(entry)
+            self.binary_data = data
+            JPAChunk.unpack(self, data, 0)
+            return
+        
+        # version 2
         self.binary_data = bytes.fromhex(entry["BinaryDataDONOTEDIT"])
         for var in self.auto_chunks:
             var.unpack_json(entry)
@@ -255,12 +269,25 @@ class JPAKeyBlock(JPAStandardChunk):
         for var in self.auto_chunks:
             var.unpack(buffer, offset)
             offset += var.get_size()
+        self.keyframes = []
         for i in range(self.key_count.val):
             keyframe = JPAKeyframe()
             keyframe.unpack(buffer, offset + (0x10 * i))
             self.keyframes.append(keyframe)
 
     def unpack_json(self, entry):
+        # version 1
+        if isinstance(entry, str):
+            # create header since it's not part of the hex string provided
+            data = bytes.fromhex(entry)
+            buffer = self.magic.encode("ascii")
+            buffer += pyaurum.pack_s32(8 + len(data))
+            buffer += data
+
+            self.unpack(buffer)
+            return
+
+        # version 2
         JPAStandardChunk.unpack_json(self, entry)
         self.keyframes = []
         for keyframe_json in entry["Keyframes"]:
@@ -427,6 +454,18 @@ class JPABaseShape(JPAStandardChunk):
                 self.environment_color_data.append(frame)
 
     def unpack_json(self, entry):
+        # version 1 - hex string
+        if isinstance(entry, str):
+            # create header since it's not part of the hex string provided
+            data = bytes.fromhex(entry)
+            buffer = self.magic.encode("ascii")
+            buffer += pyaurum.pack_s32(8 + len(data))
+            buffer += data
+
+            self.unpack(buffer)
+            return
+        
+        # version 2
         for var in self.auto_chunks:
             var.unpack_json(entry)
         self.binary_data = bytes.fromhex(entry["BinaryDataDONOTEDIT"])
