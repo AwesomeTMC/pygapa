@@ -6,12 +6,13 @@ import mrformats
 import os
 import pyaurum
 import sys
+import traceback
 
 from PyQt5 import uic, QtGui, QtCore, QtWidgets
 
 # General application info
 APP_NAME = "pygapa"
-APP_VERSION = "v0.7.4U"
+APP_VERSION = "v0.7.5U"
 APP_CREATOR = "Aurum, AwesomeTMC"
 APP_TITLE = f"{APP_NAME} {APP_VERSION} -- by {APP_CREATOR}"
 
@@ -528,7 +529,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             had_warns = self.particle_data.unpack_rarc(self.effect_arc)
         except Exception as e:  # Will be handled better in the future, smh
             self.status("An error occured while loading particle data. See output for details.", StatusColor.ERROR)
-            print(e)
+            print(traceback.format_exc())
             return
 
         # Populate data
@@ -880,7 +881,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             imported_effects = pyaurum.read_json_file(import_file)
         except Exception as e:
             self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
-            print(e)
+            print(traceback.format_exc())
             return
 
         # Select the first imported entry
@@ -1767,7 +1768,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             except Exception as e:
                 # todo: better exception handling?
                 self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
-                print(e)
+                print(traceback.format_exc())
                 new_particle_count -= 1
                 continue
 
@@ -1856,7 +1857,7 @@ class PgpEditor(QtWidgets.QMainWindow):
             except Exception as e:
                 # todo: better exception handling?
                 self.show_critical(f"An error occured when importing from \"{import_file}\". See output for details.")
-                print(e)
+                print(traceback.format_exc())
                 new_texture_count -= 1
                 continue
 

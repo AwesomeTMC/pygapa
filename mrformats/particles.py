@@ -26,7 +26,6 @@ def fix_draw_order(val: str):
 
 class ParticleEffect:
     def __init__(self):
-        self.index = -1  # This will be calculated when saving
         self.group_name = ""
         self.anim_name = list()
         self.continue_anim_end = False
@@ -54,8 +53,7 @@ class ParticleEffect:
             if len(split) == 1 and split[0] == "":
                 return list()
             return split
-
-        self.index = entry["No"]
+        
         self.group_name = entry["GroupName"]
         self.anim_name = split_list("AnimName")
         self.continue_anim_end = entry["ContinueAnimEnd"] == "on"
@@ -89,7 +87,6 @@ class ParticleEffect:
                 return entry[key]
             return defval
 
-        self.index = -1
         self.group_name = get_or_def("GroupName", "")
         self.anim_name = get_or_def("AnimName", list())
         self.continue_anim_end = get_or_def("ContinueAnimEnd", False)
@@ -119,7 +116,6 @@ class ParticleEffect:
 
     def pack(self) -> dict:
         entry = dict()
-        entry["No"] = self.index
         entry["GroupName"] = self.group_name
         entry["AnimName"] = " ".join(self.anim_name)
         entry["ContinueAnimEnd"] = "on" if self.continue_anim_end else ""
@@ -273,14 +269,10 @@ class ParticleData:
 
         print("Loading effects data...")
 
-        index = 0
         for effect_entry in in_effects_json:
             effect = ParticleEffect()
             effect.unpack_json(effect_entry)
-            effect.index = index
-
             self.effects.append(effect)
-            index += 1
 
     def __unpack_bin_files(self, jpc_data, names_data, effects_data) -> bool:
         had_warnings = False
@@ -397,7 +389,6 @@ class ParticleData:
 
         # Pack effects
         effects_data = jsystem.JMapInfo()
-        effects_data.new_field("No", jsystem.JMapFieldType.LONG)
         effects_data.new_field("GroupName", jsystem.JMapFieldType.STRING_OFFSET)
         effects_data.new_field("AnimName", jsystem.JMapFieldType.STRING_OFFSET)
         effects_data.new_field("ContinueAnimEnd", jsystem.JMapFieldType.STRING_OFFSET)
